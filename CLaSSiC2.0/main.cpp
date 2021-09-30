@@ -1,6 +1,10 @@
 #include <iostream>
+#include "simulation.hpp"
+
 
 int main() {
-	std::cout << "Life sucks";
+	Simulation sim;
+	sim.run();
+	
 	return 0;
 }
