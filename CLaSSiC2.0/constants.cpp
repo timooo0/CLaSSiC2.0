@@ -1,6 +1,5 @@
 #include <string>
-
-
+#include <cmath>
 
 namespace constants {
 	//Physical constants
@@ -16,16 +15,18 @@ namespace constants {
 	const int nAtoms = 1;
 
 	//Simulation settings;
-	const int spinInit = 1; //0: Z-direction, 1: 45 degrees
+	const int spinInit = 1; //0: Z-direction, 1: angle/45 degrees
 	const double minDistance = 1.1;
+	const int nSims = 10;
 
 	//Simulation parameters
 	const double dt = 1e-15;
 	const int steps = 1e6;
-	const double anisotropy[3] = { 0, 0, 0 };
-	const double magneticField[3] = { 0, 0, 5 };
-	const double J = 0;
-	const double lambda = 0;
+	const double anisotropy[3] = { 0, 0, 1 }; // Should be normalized
+	const double anisotropyStrength = 0;
+	const double magneticField[3] = { 0, 0, 20 };
+	const double J = 0*boltzmann;
+	const double lambda = 10;
 
 	//File constants
 	const std::string inputFile = "spin.csv";
@@ -35,4 +36,16 @@ namespace constants {
 	
 	//Prefactors
 	const double exchangePrefactor = -2 * J * spinSize / (gFactor * bohrMagneton);
+	const double temperatureSigma =2. * lambda * boltzmann * hBar * dt / (gFactor * gFactor * bohrMagneton * bohrMagneton*spinSize);
+	const double anisotropyMatrix[9] = { 
+		anisotropyStrength * anisotropy[0] * anisotropy[0],
+		anisotropyStrength * anisotropy[0] * anisotropy[1],
+		anisotropyStrength * anisotropy[0] * anisotropy[2],
+		anisotropyStrength * anisotropy[1] * anisotropy[0],
+		anisotropyStrength * anisotropy[1] * anisotropy[1],
+		anisotropyStrength * anisotropy[1] * anisotropy[2],
+		anisotropyStrength * anisotropy[2] * anisotropy[0],
+		anisotropyStrength * anisotropy[2] * anisotropy[1],
+		anisotropyStrength * anisotropy[2] * anisotropy[2] };
+
 }

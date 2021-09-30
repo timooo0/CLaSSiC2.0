@@ -2,10 +2,19 @@
 #include <fstream>
 #include <iostream>
 #include <cmath>
+#include <random>
 
 Simulation::Simulation()
 {
-	std::remove(constants::outputFile.c_str());
+	int i = 0;
+	int succes = 0;
+	while (succes == 0) {
+		std::string dataFile = constants::outputFile;
+		dataFile.insert(dataFile.find("."), std::to_string(i));
+		succes = std::remove(constants::outputFile.c_str());
+		i++;
+	}
+
 	load();
 	initialize();
 }
@@ -15,10 +24,10 @@ void Simulation::load()
 	std::fstream file;
 	std::string line;
 	size_t pos = 0;
-	unsigned int i = 0;
+	int i = 0;
 	file.open(constants::inputFile);
 
-	while (std::getline(file, line)) {
+	while (std::getline(file, line)&& i/3<constants::nAtoms) {
 		while ((pos = line.find(', ')) != std::string::npos) {
 			position[i] = std::stod(line.substr(0, pos));
 			line.erase(0, pos + 1);
@@ -60,23 +69,30 @@ void Simulation::load()
 	
 }
 
-void Simulation::initialize()
+void Simulation::initialize(double angle)
 {
 	switch (constants::spinInit) {
 		case 0:
-			for (int i = 0; i < constants::nAtoms*3; i++) {
-				spin[i] = 0;
+			for (int i = 0; i < constants::nAtoms; i++) {
+				spin[3 * i] = 0;
+				spin[3 * i + 1] = 0;
+				spin[3 * i + 2] = 1;
+
 			}
 			break;
 		case 1:
 			for (int i = 0; i < constants::nAtoms; i++) {
-				spin[3 * i] = std::sin(0.25*constants::pi);
-				spin[3 * i + 1] = 0;
-				spin[3*i+2] = std::cos(0.25*constants::pi);
+				spin[3 * i]     = std::cos((float)i / constants::nAtoms * 2 * constants::pi)*std::sin(angle);
+				spin[3 * i + 1] = std::sin((float)i / constants::nAtoms * 2 * constants::pi)*std::sin(angle);
+				spin[3 * i + 2] = std::cos(angle);
 			}
 			break;
 	}
 
+	std::cout << "Spin initialization: \n";
+	for (int i = 0; i < constants::nAtoms; i++) {
+		std::cout << "x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
+	}
 }
 
 void Simulation::normalize()
@@ -90,17 +106,25 @@ void Simulation::normalize()
 	}
 }
 
-void Simulation::run()
+void Simulation::run(int iterator, double temperature)
 {
-	//temperature effects
-	double temperature = 0;
+	
+	std::random_device seed;
+	std::default_random_engine engine{ seed() };
+	std::normal_distribution<double> temperatureDistribution;
+	if (constants::temperatureSigma != 0 && temperature != 0) {
+		temperatureDistribution = std::normal_distribution<double>(0, std::sqrt(constants::temperatureSigma*temperature));
+	}
 	for (int i = 0; i < constants::nAtoms*3; i++) {
 		randomField[0] = 0;
 	}
 
 
 	std::ofstream file;
-	file.open(constants::outputFile, std::ios::binary);
+	std::string dataFile = constants::outputFile;
+	dataFile.insert(dataFile.find("."),std::to_string(iterator));
+	file.open(dataFile, std::ios::binary);
+
 	file.write((char*)&constants::offset, sizeof(double));
 	file.write((char*)&constants::dt, sizeof(double));
 	file.write((char*)&constants::J, sizeof(double));
@@ -111,8 +135,16 @@ void Simulation::run()
 	file.write((char*)&constants::length, sizeof(double));
 
 	for (int i = 0; i < constants::steps; i++) {
-		file.write((char*)&spin[0], sizeof(spin));
+		if (constants::temperatureSigma != 0 && temperature != 0) {
+			for (int i = 0; i < constants::nAtoms * 3; i++) {
+				randomField[i] = temperatureDistribution(engine);
+			}
+		}
+
 		integrator.integrate(neighbours, spin, randomField);
+		normalize();
+		//std::cout << "x: " << spin[0] << " y: " << spin[1] << " z: " << spin[2] << std::endl;
+		file.write((char*)&spin[0], sizeof(double)*constants::nAtoms*3);
 	}
 	file.close();
 }

@@ -3,13 +3,14 @@
 
 class Integrator {
 private:
-	double rk[3*constants::nAtoms];
-	double rkPos[3 * constants::nAtoms];
-	double effectiveField[3 * constants::nAtoms];
+	std::vector<double> rk = std::vector<double>(3 * constants::nAtoms);
+	std::vector<double> rkPos = std::vector<double>(3 * constants::nAtoms);
+	std::vector<double> effectiveField = std::vector<double>(3 * constants::nAtoms);
 public:
-	void calculateEffectiveField(std::vector<std::vector<double>>& neighbours, double spin[constants::nAtoms * 3]);
-	void rungeKutta(std::vector<std::vector<double>>& neighbours, double spin[constants::nAtoms*3]);
-	void integrate(std::vector<std::vector<double>>& neighbours, double spin[constants::nAtoms * 3], double randomField[constants::nAtoms * 3]);
+	void calculateEffectiveField(std::vector<std::vector<double>>& neighbours, std::vector<double>& spin);
+	void rungeKutta(std::vector<std::vector<double>>& neighbours, std::vector<double>& spin);
+	void integrate(std::vector<std::vector<double>>& neighbours, std::vector<double>& spin, std::vector<double>& randomField);
 	double dotProduct(double a[3], double b[3]);
+	double dotProduct(const double a[3], double b[3]);
 	
 };
