@@ -13,9 +13,11 @@ namespace constants {
 
 	//System constants
 	const double spinSize = 3.5;
-	const int nAtoms = 12;
-	const int nDimensions = 1;
-	const std::vector<std::vector<double>> unitVectors = {{nAtoms-1, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+	const int baseAtoms = 4;
+	const int nUnitCells = 2;
+	const int nDimensions = 2;
+	const int nAtoms = baseAtoms*(nUnitCells*nDimensions);
+	const std::vector<std::vector<double>> unitVectors = {{baseAtoms, 0, 0}, {0, 1, 0}, {0, 0, 0}};
 
 	//Simulation settings;
 	const int spinInit = 1; //0: Z-direction, 1: angle/45 degrees

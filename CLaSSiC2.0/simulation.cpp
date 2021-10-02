@@ -29,26 +29,39 @@ void Simulation::load()
 	file.open(constants::inputFile);
 
 	//Get the positions
-	while (std::getline(file, line)&& i/3<constants::nAtoms) {
+	while (std::getline(file, line)&& i/3<constants::baseAtoms) {
 		while ((pos = line.find(', ')) != std::string::npos) {
-			position[i] = std::stod(line.substr(0, pos));
+			position.push_back(std::stod(line.substr(0, pos)));
 			line.erase(0, pos + 1);
 			i++;
 		}
 		if (!line.empty()) {
-			position[i] = std::stod(line);
+			position.push_back(std::stod(line));
 			i++;
 		}
 	}
 	
 	file.close();
 
+
+	//Add more unit cells
+	std::vector<double> basePosition;
+	for (int i = 0; i < constants::nDimensions; i++) {
+		basePosition = position;
+		for (int j = 0; j < basePosition.size()/3; j++) {
+			for (int k = 0; k < 3; k++) {
+				for (int l = 1; l < constants::nUnitCells; l++) {
+					position.push_back(basePosition[3*j+k] + l * (constants::unitVectors[i][k]));
+				}
+			}
+		}
+	}
+
 	std::cout << "Atom positions: \n";
-	for (int i = 0; i < constants::nAtoms; i++) {
+	for (int i = 0; i < position.size()/3; i++) {
 		std::cout << "x: " << position[3 * i] << " y: " << position[3 * i + 1] << " z: " << position[3 * i + 2] << std::endl;
 	}
 	std::cout << std::endl;
-
 	//Calculate nearest neighbours
 	double distance;
 	for (int i = 0; i < constants::nAtoms; i++) {
@@ -66,20 +79,28 @@ void Simulation::load()
 	
 	//Periodic boundary conditions
 	bool applyBoundry = true;
-	for (int i = 0; i < constants::nAtoms; i++) {
-		for (int j = 0; j < constants::nAtoms; j++) {
-			if (i != j) {
-				applyBoundry = true;
-				for (int k = 0; k < 3; k++) {
-					for (int l = 0; l<constants::nDimensions;  l++) {
-						if (position[3*i+k]+ constants::unitVectors[l][k] != position[3*j+k]) {
-							applyBoundry = false;
+	for (int l = 0; l<constants::nDimensions;  l++) {
+		for (int i = 0; i < constants::nAtoms; i++) {
+			for (int j = 0; j < constants::nAtoms; j++) {
+				if (i != j) {
+					applyBoundry = true;
+					for (int k = 0; k < 3; k++) {
+						if (constants::unitVectors[l][k] != 0) {
+							if (position[3 * i + k] + constants::nUnitCells * constants::unitVectors[l][k] - 1 != position[3 * j + k]) {
+								applyBoundry = false;
+							}
+						}
+						else {
+							if (position[3 * i + k] != position[3 * j + k]) {
+								applyBoundry = false;
+							}
 						}
 					}
-				}
-				if (applyBoundry) {
-					neighbours[i].push_back(j);
-					neighbours[j].push_back(i);
+
+					if (applyBoundry && std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
+						neighbours[i].push_back(j);
+						neighbours[j].push_back(i);
+					}
 				}
 			}
 		}
