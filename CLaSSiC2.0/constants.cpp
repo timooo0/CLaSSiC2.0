@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 #include <cmath>
 
 namespace constants {
@@ -12,7 +13,9 @@ namespace constants {
 
 	//System constants
 	const double spinSize = 3.5;
-	const int nAtoms = 1;
+	const int nAtoms = 12;
+	const int nDimensions = 1;
+	const std::vector<std::vector<double>> unitVectors = {{nAtoms-1, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 
 	//Simulation settings;
 	const int spinInit = 1; //0: Z-direction, 1: angle/45 degrees
@@ -25,8 +28,8 @@ namespace constants {
 	const double anisotropy[3] = { 0, 0, 1 }; // Should be normalized
 	const double anisotropyStrength = 0;
 	const double magneticField[3] = { 0, 0, 20 };
-	const double J = 0*boltzmann;
-	const double lambda = 10;
+	const double J = 2*boltzmann;
+	const double lambda = 0;
 
 	//File constants
 	const std::string inputFile = "spin.csv";

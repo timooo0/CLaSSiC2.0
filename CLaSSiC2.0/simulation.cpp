@@ -28,6 +28,7 @@ void Simulation::load()
 	int i = 0;
 	file.open(constants::inputFile);
 
+	//Get the positions
 	while (std::getline(file, line)&& i/3<constants::nAtoms) {
 		while ((pos = line.find(', ')) != std::string::npos) {
 			position[i] = std::stod(line.substr(0, pos));
@@ -48,6 +49,7 @@ void Simulation::load()
 	}
 	std::cout << std::endl;
 
+	//Calculate nearest neighbours
 	double distance;
 	for (int i = 0; i < constants::nAtoms; i++) {
 		for (int j = 0; j < constants::nAtoms; j++) {
@@ -62,6 +64,26 @@ void Simulation::load()
 		}
 	}
 	
+	//Periodic boundary conditions
+	bool applyBoundry = true;
+	for (int i = 0; i < constants::nAtoms; i++) {
+		for (int j = 0; j < constants::nAtoms; j++) {
+			if (i != j) {
+				applyBoundry = true;
+				for (int k = 0; k < 3; k++) {
+					for (int l = 0; l<constants::nDimensions;  l++) {
+						if (position[3*i+k]+ constants::unitVectors[l][k] != position[3*j+k]) {
+							applyBoundry = false;
+						}
+					}
+				}
+				if (applyBoundry) {
+					neighbours[i].push_back(j);
+					neighbours[j].push_back(i);
+				}
+			}
+		}
+	}
 	std::cout << "Neighbours: \n";
 	for (int i = 0; i < constants::nAtoms; i++) {
 		for (int j = 0; j < neighbours[i].size(); j++) {
@@ -69,7 +91,6 @@ void Simulation::load()
 		}
 		std::cout << std::endl;
 	}
-	
 }
 
 void Simulation::initialize(double angle)
@@ -155,5 +176,5 @@ void Simulation::run(int iterator, double temperature)
 	file.close();
 
 	auto msInt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
-	std::cout << "Duration: " << (float)msInt.count() / 1000 << "seconds";
+	std::cout << "Duration: " << (float)msInt.count() / 1000 << "seconds" << std::endl;
 }
