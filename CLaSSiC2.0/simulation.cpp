@@ -191,6 +191,9 @@ void Simulation::run(int iterator, double temperature)
 		}
 
 		integrator.integrate(neighbours, spin, randomField);
+		if (i % 1000 == 0) {
+			std::cout << "Progress: " << (float)i / constants::steps*100 << "%\r";
+		}
 		normalize();
 		//std::cout << "x: " << spin[0] << " y: " << spin[1] << " z: " << spin[2] << std::endl;
 		file.write((char*)&spin[0], sizeof(double)*constants::nAtoms*3);
@@ -198,5 +201,5 @@ void Simulation::run(int iterator, double temperature)
 	file.close();
 
 	auto msInt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
-	std::cout << "Duration: " << (float)msInt.count() / 1000 << "seconds" << std::endl;
+	std::cout << "\nDuration: " << (float)msInt.count() / 1000 << "seconds" << std::endl;
 }
