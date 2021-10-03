@@ -46,12 +46,12 @@ void Simulation::load()
 
 	//Add more unit cells
 	std::vector<double> basePosition;
-	for (int i = 0; i < constants::nDimensions; i++) {
+	for (int dim = 0; dim < constants::nDimensions; dim++) {
 		basePosition = position;
-		for (int j = 0; j < basePosition.size()/3; j++) {
-			for (int k = 0; k < 3; k++) {
-				for (int l = 1; l < constants::nUnitCells; l++) {
-					position.push_back(basePosition[3*j+k] + l * (constants::unitVectors[i][k]));
+		for (int cell = 1; cell < constants::nUnitCells; cell++) {
+			for (int i = 0; i < basePosition.size()/3; i++) {
+				for (int j = 0; j < 3; j++) {
+					position.push_back(basePosition[3*i+j] + cell * (constants::unitVectors[dim][j]));
 				}
 			}
 		}
@@ -61,6 +61,7 @@ void Simulation::load()
 	for (int i = 0; i < position.size()/3; i++) {
 		std::cout << "x: " << position[3 * i] << " y: " << position[3 * i + 1] << " z: " << position[3 * i + 2] << std::endl;
 	}
+
 	std::cout << std::endl;
 	//Calculate nearest neighbours
 	double distance;
