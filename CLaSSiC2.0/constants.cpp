@@ -13,16 +13,16 @@ namespace constants {
 
 	//System constants
 	const double spinSize = 3.5;
-	const int baseAtoms = 4;
-	const int nUnitCells = 2;
+	const int baseAtoms = 2;
+	const int nUnitCells = 4;
 	const int nDimensions = 2;
-	const int nAtoms = baseAtoms*(nUnitCells*nDimensions);
+	const int nAtoms = baseAtoms * std::pow(nUnitCells, nDimensions);
 	const std::vector<std::vector<double>> unitVectors = {{baseAtoms, 0, 0}, {0, 1, 0}, {0, 0, 0}};
 
 	//Simulation settings;
 	const int spinInit = 1; //0: Z-direction, 1: angle/45 degrees
 	const double minDistance = 1.1;
-	const int nSims = 10;
+	const int nSims = 1;
 
 	//Simulation parameters
 	const double dt = 1e-15;
