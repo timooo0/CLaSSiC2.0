@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <random>
+#include <algorithm>
 #include <chrono>
 
 Simulation::Simulation()
@@ -27,10 +28,13 @@ void Simulation::load()
 	size_t pos = 0;
 	int i = 0;
 	file.open(constants::inputFile);
+	if (!file.is_open()){
+		std::cout << "Could not open file.\n";
+	}
 
 	//Get the positions
 	while (std::getline(file, line)&& i/3<constants::baseAtoms) {
-		while ((pos = line.find(', ')) != std::string::npos) {
+		while ((pos = line.find(", ")) != std::string::npos) {
 			position.push_back(std::stod(line.substr(0, pos)));
 			line.erase(0, pos + 1);
 			i++;

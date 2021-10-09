@@ -13,9 +13,9 @@ namespace constants {
 
 	//System constants
 	const double spinSize = 3.5;
-	const int baseAtoms = 2;
-	const int nUnitCells = 4;
-	const int nDimensions = 2;
+	const int baseAtoms = 1;
+	const int nUnitCells = 1;
+	const int nDimensions = 1;
 	const int nAtoms = baseAtoms * std::pow(nUnitCells, nDimensions);
 	const std::vector<std::vector<double>> unitVectors = {{baseAtoms, 0, 0}, {0, 1, 0}, {0, 0, 0}};
 
@@ -35,7 +35,7 @@ namespace constants {
 
 	//File constants
 	const std::string inputFile = "spin.csv";
-	const std::string outputFile = "data.dat";
+	const std::string outputFile = "data//data.dat";
 	const double offset = 12; //offset, dt, J, lambda, 3 magneticField, 3 anisotropy, temperature, length
 	const double length = 3 * nAtoms;
 	
