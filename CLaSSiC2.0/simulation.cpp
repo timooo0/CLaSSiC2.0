@@ -132,6 +132,13 @@ void Simulation::initialize(double angle)
 			break;
 		case 1:
 			for (int i = 0; i < constants::nAtoms; i++) {
+				spin[3 * i]     = std::cos((float)i / constants::nAtoms * 2 * constants::pi)*std::sin(angle);
+				spin[3 * i + 1] = std::sin((float)i / constants::nAtoms * 2 * constants::pi)*std::sin(angle);
+				spin[3 * i + 2] = std::cos(angle);
+			}
+			break;
+		case 2:
+			for (int i = 0; i < constants::nAtoms; i++) {
 				spin[3 * i]     = 0.001*std::cos((float)i / constants::nAtoms * 2 * constants::pi)*std::sin(angle);
 				spin[3 * i + 1] = 0.001*std::sin((float)i / constants::nAtoms * 2 * constants::pi)*std::sin(angle);
 				spin[3 * i + 2] = std::cos(angle);

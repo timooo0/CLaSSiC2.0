@@ -42,10 +42,10 @@ print(np.size(np.fft.fft(x)))
 print('plotting...')
 print(f'precession energy: {4.135665538536e-12*np.fft.fftfreq(np.size(x),d=dt)[np.argmax(np.fft.fft(x))]} meV')
 
-end = 1000_00
-ax[0].plot(time[:], x[:],'r')
-ax[0].plot(time[:], y[:],'b')
-ax[0].plot(time[:], z[:],'g')
+end = 1000_000
+ax[0].plot(time[:end], y[:end],'b')
+ax[0].plot(time[:end], x[:end],'r')
+ax[0].plot(time[:end], z[:end],'g')
 ax[0].set_xlabel('time [s]')
 ax[0].set_ylabel('spin [-]')
 ax[0].set_title('Spin evolution')

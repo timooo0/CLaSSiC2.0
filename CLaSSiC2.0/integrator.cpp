@@ -27,11 +27,26 @@ void Integrator::rungeKutta(std::vector<std::vector<double>>& neighbours, std::v
 		pDotB = dotProduct(&spin[3 * i], &effectiveField[3 * i]);
 
 		rk[3 * i] = constants::gamma * (spin[3 * i + 1] * effectiveField[3 * i + 2] - spin[3 * i + 2] * effectiveField[3 * i + 1]
-			+ constants::lambda*(effectiveField[3*i]*pDotp - spin[3*i]*pDotB));
+			// + constants::lambda*(effectiveField[3*i]*pDotp - spin[3*i]*pDotB));
+			+ constants::lambda*(
+				effectiveField[3*i+1] * spin[3*i] * spin[3*i+1]
+				- effectiveField[3*i] * spin[3*i+1] * spin[3*i+1]
+				+ effectiveField[3*i+2] * spin[3*i] * spin[3*i+2]
+				- effectiveField[3*i] * spin[3*i+2] * spin[3*i+2]));
 		rk[3*i + 1] = constants::gamma * (spin[3 * i + 2] * effectiveField[3 * i] - spin[3 * i] * effectiveField[3 * i + 2]
-			+ constants::lambda * (effectiveField[3 * i + 1] * pDotp - spin[3 * i + 1] * pDotB));
+			// + constants::lambda * (effectiveField[3 * i + 1] * pDotp - spin[3 * i + 1] * pDotB));
+			+constants::lambda*(
+				- effectiveField[3*i+1] * spin[3*i]*spin[3*i]
+				+ effectiveField[3*i] * spin[3*i] * spin[3*i+1]
+				+ effectiveField[3*i+2] * spin[3*i+1] * spin[3*i+2]
+				- effectiveField[3*i+1] * spin[3*i+2]*spin[3*i+2]));
 		rk[3 * i + 2] = constants::gamma * (spin[3 * i] * effectiveField[3 * i + 1] - spin[3 * i + 1] * effectiveField[3 * i]
-			+ constants::lambda * (effectiveField[3 * i + 2] * pDotp - spin[3 * i + 2] * pDotB));
+			// + constants::lambda * (effectiveField[3 * i + 2] * pDotp - spin[3 * i + 2] * pDotB));
+			+constants::lambda*(
+				- effectiveField[3*i+2] * spin[3*i]*spin[3*i]
+				- effectiveField[3*i+2] * spin[3*i+1]*spin[3*i+1]
+				+ effectiveField[3*i] * spin[3*i]*spin[3*i+2]
+				+ effectiveField[3*i+1] * spin[3*i+1]*spin[3*i+2]));
 	}
 }
 
@@ -43,13 +58,15 @@ void Integrator::integrate(std::vector<std::vector<double>>& neighbours, std::ve
 	}
 	rungeKutta(neighbours, rkPos);
 
+	double temperatureSpin[3];
 	for (int i = 0; i < constants::nAtoms; i++) {
-		spin[3*i] += rk[3*i] * constants::dt 
-			+ constants::gamma*(spin[3*i+1]*randomField[3*i+2]-spin[3*i+2]*randomField[3*i+1]);
-		spin[3 * i+1] += rk[3*i+1] * constants::dt
-			+ constants::gamma * (spin[3 * i + 2] * randomField[3 * i] - spin[3 * i] * randomField[3 * i + 2]);
-		spin[3 * i+2] += rk[3*i+2] * constants::dt
-			+ constants::gamma * (spin[3 * i] * randomField[3 * i + 1] - spin[3 * i + 1] * randomField[3 * i]);
+		temperatureSpin[0] = constants::gamma*(spin[3*i+1]*randomField[3*i+2]-spin[3*i+2]*randomField[3*i+1]);
+		temperatureSpin[1] = constants::gamma * (spin[3 * i + 2] * randomField[3 * i] - spin[3 * i] * randomField[3 * i + 2]);
+		temperatureSpin[2] = constants::gamma * (spin[3 * i] * randomField[3 * i + 1] - spin[3 * i + 1] * randomField[3 * i]);
+
+		spin[3*i] += rk[3*i] * constants::dt + temperatureSpin[0];
+		spin[3 * i+1] += rk[3*i+1] * constants::dt + temperatureSpin[1];
+		spin[3 * i+2] += rk[3*i+2] * constants::dt + temperatureSpin[2];
 	}
 }
 

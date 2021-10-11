@@ -20,18 +20,18 @@ namespace constants {
 	const std::vector<std::vector<double>> unitVectors = {{baseAtoms, 0, 0}, {0, 1, 0}, {0, 0, 0}};
 
 	//Simulation settings;
-	const int spinInit = 1; //0: Z-direction, 1: angle/45 degrees
+	const int spinInit = 0; //0: Z-direction, 1: angle/45 degrees, 2: small z angle
 	const double minDistance = 1.1;
-	const int nSims = 1;
+	const int nSims = 10;
 
 	//Simulation parameters
-	const double dt = 1e-15;
+	const double dt = 1e-14;
 	const int steps = 1e6;
 	const double anisotropy[3] = { 0, 0, 1 }; // Should be normalized
 	const double anisotropyStrength = 0;
 	const double magneticField[3] = { 0, 0, 20 };
 	const double J = 2*boltzmann;
-	const double lambda = 0;
+	const double lambda = 1e-3;
 
 	//File constants
 	const std::string inputFile = "spin.csv";

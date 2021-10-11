@@ -1,6 +1,7 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-basePath = "C:/Users/timov/source/repos/CLaSSiC2.0/CLaSSiC2.0/data.dat"
+basePath = os.getcwd()+"\\CLaSSiC2.0\\data\\data.dat"
 i = 0
 path = basePath[:-4] + str(i) + basePath[-4:]
 
