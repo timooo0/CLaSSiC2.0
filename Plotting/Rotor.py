@@ -1,54 +1,31 @@
+import helper
 import numpy as np
 import matplotlib.pyplot as plt
-basePath = "C:/Users/timov/source/repos/CLaSSiC2.0/CLaSSiC2.0/data.dat"
-i = 0
-path = basePath[:-4] + str(i) + basePath[-4:]
 
-success = True
-angleArray = []
-energyArray = []
-print(path)
-while(success):
-    try:
-        with open(path, "rb") as f:
-            data = np.fromfile(f, dtype=np.double)
+param, x, y, z = helper.getData()
 
-        offset = int(data[0])
-        dt = data[1]
-        J = data[2]
-        length = int(data[11])
-        x = data[offset::length]
-        z = data[offset + 2::length]
-        angleArray.append(np.degrees(np.arccos(z[0])))
-        energyArray.append(6.241509e21*1.0545718e-34*2*np.pi*np.fft.fftfreq(np.size(x), d=dt)[np.argmax(np.fft.fft(x))])
-        i+=1
-        path = basePath[:-4] + str(i) + basePath[-4:]
-        print(f'file {i}')
-    except IOError:
-        if i==0:
-           print('Error While Opening the file!')
-        else:
-           success = False
+energy, angle = [], []
+print(x.shape)
+
+for fNum in range(x.shape[0]):
+    energy.append(helper.constants["Hz_to_meV"]*np.fft.fftfreq(param[fNum]["steps"],d=param[fNum]["dt"])[np.argmax(np.fft.fft(x[fNum, 0, :]))])
+    angle.append(90-np.arccos(z[fNum, 0, -1])*180/np.pi)
+
+theoryAngle  = np.linspace(0,90,100)
+theoryEnergy = helper.constants["J_to_meV"] * 4 * param[fNum]["J"] * 7/2 * np.sin(np.radians(theoryAngle))
 
 
 fig, ax = plt.subplots()
-
-print(f'size: {np.size(x)}')
-print(f'z: {angleArray}')
-print('plotting...')
-end = 5000
-
-theoryAngle  = np.linspace(0,90,100)
-theoryEnergy = 6.241509e21 * 4 * J * 7/2 * np.cos(np.radians(theoryAngle))
 ax.plot(theoryAngle, theoryEnergy, 'r')
-ax.plot(angleArray[:end], np.abs(energyArray[:end]),'bo')
+ax.plot(angle, np.abs(energy),'bo')
 ax.set_xlabel(r'$\theta$ [degrees]')
 ax.set_ylabel(r'Energy [meV]')
 ax.set_title('Rotor')
 
+# time = np.linspace(0,param[fNum][fNum]["dt"]*N,N)
+# plt.plot(time,x[:, 0], 'r')
 # ax[1].plot(4.135665538536e-12*np.real(np.fft.fftfreq(np.size(x),d=dt)), np.fft.fft(x))
 # ax[1].set_xlim(-1,1)
 #
 # # plt.axis('equal')
 plt.show()
-f.close()
