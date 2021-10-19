@@ -62,7 +62,6 @@ void Integrator::rungeKutta(std::vector<std::vector<double>>& neighbours, std::v
 void Integrator::integrate(std::vector<std::vector<double>>& neighbours, std::vector<double>& spin, std::vector<double>& randomField)
 {
 	rungeKutta(neighbours, spin);
-	rkSave = rk;
 	for (int i = 0; i < constants::nAtoms * 3; i++) {
 		rkPos[i] = spin[i] + rk[i]/2;
 	}
