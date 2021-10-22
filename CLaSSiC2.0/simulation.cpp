@@ -141,7 +141,7 @@ void Simulation::load()
 	}
 
 // Printing
-#if print::positions
+#if printPositions
 	std::cout << "Atom positions: \n";
 	for (int i = 0; i < position.size() / 3; i++)
 	{
@@ -149,7 +149,7 @@ void Simulation::load()
 	}
 #endif
 
-#if print::neighbours
+#if printNeighbours
 	std::cout << "Neighbours: \n";
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
@@ -210,7 +210,7 @@ void Simulation::initialize(double angle)
 	}
 
 //Printing
-# if print::initialize
+# if printInitialize
 	std::cout << "Spin initialization: \n";
 	for (int i = 0; i < constants::nAtoms; i++) {
 		std::cout << "x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;

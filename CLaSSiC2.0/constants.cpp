@@ -15,7 +15,7 @@ namespace constants
 	// System constants
 	const double spinSize = 3.5;
 	const int baseAtoms = 1;
-	const int nUnitCells = 100;
+	const int nUnitCells = 12;
 	const int nDimensions = 2;
 	const int nAtoms = baseAtoms * std::pow(nUnitCells, nDimensions);
 	const std::vector<std::vector<double>> unitVectors = {{baseAtoms, 0, 0}, {0, 1, 0}, {0, 0, 0}};
@@ -57,9 +57,6 @@ namespace constants
 }
 
 // Enables printing for debug purposes
-namespace print
-{
-	const bool positions = false;
-	const bool neighbours = false;
-	const bool initialize = false;
-}
+	const bool printPositions = false;
+	const bool printNeighbours = false;
+	const bool printInitialize = false;
