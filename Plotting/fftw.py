@@ -6,11 +6,6 @@ import cmath
 import pyfftw
 import matplotlib.pyplot as plt
 
-
-
-
-
-
 param, x, y, z = helper.getData()
 fNum = 0
 
@@ -21,57 +16,11 @@ print(maxEnergyIndex)
 fourierLength = int(param[fNum]["steps"] / 2)
 sideLength = int(np.sqrt(param[fNum]["atoms"]))
 
-
-
-
-def scatter(q, position):
-    input = pyfftw.empty_aligned((param[fNum]["atoms"], param[fNum]["steps"]), dtype='complex128')
-    output = pyfftw.empty_aligned((param[fNum]["atoms"], param[fNum]["steps"]), dtype='complex128')
-    ic_sum = 0
-    for i in range(param[fNum]["atoms"]):
-        q_dot_lattice = np.exp(1j * np.dot(q, position[i]))
-
-        input[i, :] = q_dot_lattice * x[fNum, i, :]
-
-        ic_sum += cmath.exp(-1j * np.dot(q, position[i])) * x[fNum, i, 0]
-
-
-    output = pyfftw.FFTW(input, output, axes=(1,), flags=('FFTW_MEASURE',), threads=8)()
-    output = np.sum(output, axis=0)
-    output *= ic_sum
-    output = np.power(np.abs(output), 2)
-    return output[:fourierLength].real
-
-
-def runTransform():
-    lattice_position = []
-    for i in range(sideLength):
-        for j in range(sideLength):
-            lattice_position.append([j, i, 0])
-    lattice_position = np.array(lattice_position).reshape(param[fNum]["atoms"], 3)
-
-    I_total = np.zeros((sideLength, sideLength, maxEnergyIndex))
-
-    q_x = np.array([0, 0, 0])
-    eIndex = np.array([], dtype=np.float32)
-    for i in range(sideLength):
-        print(f"q_x: {i}")
-        for j in range(sideLength):
-            q_x = np.vstack((q_x, np.array([np.pi * (2 * i / sideLength - 1), np.pi * (2 * j / sideLength - 1), 0])))
-            I_aa = scatter(q_x[-1, :], lattice_position)
-            eIndex = np.append(eIndex, np.argmax(I_aa))
-            I_total[i, j, :] = I_aa[:maxEnergyIndex]
-
-    I_total.tofile(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat")
-    eIndex.tofile(os.getcwd() + "\\CLaSSiC2.0\\data\\energyIndex.dat")
-
-    return I_total, eIndex.astype(np.int32)
-
-
 if not os.path.exists(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat") and not os.path.exists(os.getcwd() + "\\CLaSSiC2.0\\data\\energyIndex.dat"):
-    print("Recalculating")
+    print("Calculating")
     start = time.time()
-    I_total, eIndex = runTransform()
+    latticePosition = helper.positionSquareLattice(sideLength, param[fNum])
+    I_total, eIndex = helper.runTransform(latticePosition, x[fNum,:,:], sideLength, maxEnergyIndex, param[fNum])
     print(f'duration: {time.time()-start}')
 else:
     print("Pulling fourier data from file")
