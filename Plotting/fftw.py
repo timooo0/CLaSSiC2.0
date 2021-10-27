@@ -20,7 +20,8 @@ if not os.path.exists(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat") and not o
     print("Calculating")
     start = time.time()
     latticePosition = helper.positionSquareLattice(sideLength, param[fNum])
-    I_total, eIndex = helper.runTransform(latticePosition, x[fNum,:,:], sideLength, maxEnergyIndex, param[fNum])
+    qScatter =  helper.qAll(sideLength)
+    I_total, eIndex = helper.runTransform(latticePosition, x[fNum,:,:], qScatter, sideLength, maxEnergyIndex, param[fNum])
     print(f'duration: {time.time()-start}')
 else:
     print("Pulling fourier data from file")

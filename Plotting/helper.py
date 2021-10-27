@@ -69,16 +69,15 @@ def scatter(q, position, spin, param):
     output = np.power(np.abs(output), 2)
     return output[:int(param["steps"]/2)].real
 
-def runTransform(latticePosition, spin, size, maxEnergyIndex, param):
+def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
     I_total = np.zeros((size, size, maxEnergyIndex))
 
-    q_x = np.array([0, 0, 0])
+    
     eIndex = np.array([], dtype=np.float32)
     for i in range(size):
         print(f"q_x: {i}")
         for j in range(size):
-            q_x = np.vstack((q_x, np.array([np.pi * (2 * i / size - 1), np.pi * (2 * j / size - 1), 0])))
-            I_aa = scatter(q_x[-1, :], latticePosition, spin, param)
+            I_aa = scatter(q[size*i+j, :], latticePosition, spin, param)
             eIndex = np.append(eIndex, np.argmax(I_aa))
             I_total[i, j, :] = I_aa[:maxEnergyIndex]
 
@@ -95,3 +94,13 @@ def positionSquareLattice(size, param):
     latticePosition = np.array(latticePosition).reshape(param["atoms"], 3)
 
     return latticePosition
+
+def qAll(size):
+    q = np.array([0, 0, 0])
+    for i in range(size):
+        for j in range(size):
+            q = np.vstack((q, np.array([np.pi * (2 * i / size - 1), np.pi * (2 * j / size - 1), 0])))
+
+    q = np.delete(q, 0, axis=0)
+
+    return q
