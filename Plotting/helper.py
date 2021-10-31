@@ -70,16 +70,19 @@ def scatter(q, position, spin, param):
     return output[:int(param["steps"]/2)].real
 
 def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
-    I_total = np.zeros((size, size, maxEnergyIndex))
+    I_total = np.zeros((q.shape[0], maxEnergyIndex))
 
     
     eIndex = np.array([], dtype=np.float32)
-    for i in range(size):
-        print(f"q_x: {i}")
-        for j in range(size):
-            I_aa = scatter(q[size*i+j, :], latticePosition, spin, param)
-            eIndex = np.append(eIndex, np.argmax(I_aa))
-            I_total[i, j, :] = I_aa[:maxEnergyIndex]
+    for i in range(q.shape[0]):
+        if i%size==0:
+            print(f'progress: {i/q.shape[0]*100:.3f}%')
+        I_aa = scatter(q[i, :], latticePosition, spin, param)
+        eIndex = np.append(eIndex, np.argmax(I_aa))
+        I_total[i, :] = I_aa[:maxEnergyIndex]
+
+    for i in range(maxEnergyIndex):
+        I_total[:,i] = I_total[:,i]/np.max(I_total[:,i])
 
     I_total.tofile(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat")
     eIndex.tofile(os.getcwd() + "\\CLaSSiC2.0\\data\\energyIndex.dat")
@@ -103,4 +106,19 @@ def qAll(size):
 
     q = np.delete(q, 0, axis=0)
 
+    return q
+
+def qSquare(size):
+    q = np.array([0, 0, 0])
+    q = reciprocalPath([0,0,0], [np.pi, 0, 0], q, size)
+    q = reciprocalPath([np.pi,0,0], [np.pi, np.pi, 0], q, size)
+    q = reciprocalPath([np.pi,np.pi,0], [0, 0, 0], q, size)
+    q = np.delete(q, 0, axis=0)
+
+    return q
+
+def reciprocalPath(start, end, q, size):
+    length = np.array(end) - np.array(start)
+    for i in range(size): 
+        q = np.vstack((q, np.array([start[0] + length[0]* i / size, start[1] + length[1]* i / size, start[2] + length[2]* i / size])))
     return q
