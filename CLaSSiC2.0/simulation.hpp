@@ -13,8 +13,8 @@ private:
 public:
 	Simulation();
 	void load();
-	void initialize(double angle = 0.25 * constants::pi);
-	void run(int iterator = 0, double temperature = 0);
+	void initialize();
+	void run();
 	void normalize();
-	void writeConstants(std::ofstream &file, double &temperature);
+	void writeConstants(std::ofstream &file);
 };
