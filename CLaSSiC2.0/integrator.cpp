@@ -35,9 +35,26 @@ void Integrator::evaluate(std::vector<std::vector<double>> &neighbours, std::vec
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
 
-		rk[3 * i] = constants::gamma * constants::dt * (spin[3 * i + 1] * effectiveField[3 * i + 2] - spin[3 * i + 2] * effectiveField[3 * i + 1] + constants::lambda * (effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i + 1] - effectiveField[3 * i] * spin[3 * i + 1] * spin[3 * i + 1] + effectiveField[3 * i + 2] * spin[3 * i] * spin[3 * i + 2] - effectiveField[3 * i] * spin[3 * i + 2] * spin[3 * i + 2]));
-		rk[3 * i + 1] = constants::gamma * constants::dt * (spin[3 * i + 2] * effectiveField[3 * i] - spin[3 * i] * effectiveField[3 * i + 2] + constants::lambda * (-effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i] + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 1] + effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 2] - effectiveField[3 * i + 1] * spin[3 * i + 2] * spin[3 * i + 2]));
-		rk[3 * i + 2] = constants::gamma * constants::dt * (spin[3 * i] * effectiveField[3 * i + 1] - spin[3 * i + 1] * effectiveField[3 * i] + constants::lambda * (-effectiveField[3 * i + 2] * spin[3 * i] * spin[3 * i] - effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 1] + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 2] + effectiveField[3 * i + 1] * spin[3 * i + 1] * spin[3 * i + 2]));
+		rk[3 * i] = constants::gamma * constants::dt * (spin[3 * i + 1] * effectiveField[3 * i + 2] - spin[3 * i + 2] * effectiveField[3 * i + 1]
+		 + constants::lambda * 
+		 (effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i + 1]
+		  - effectiveField[3 * i] * spin[3 * i + 1] * spin[3 * i + 1]
+		  + effectiveField[3 * i + 2] * spin[3 * i] * spin[3 * i + 2]
+		   - effectiveField[3 * i] * spin[3 * i + 2] * spin[3 * i + 2]));
+		
+		rk[3 * i + 1] = constants::gamma * constants::dt * (spin[3 * i + 2] * effectiveField[3 * i] - spin[3 * i] * effectiveField[3 * i + 2]
+		 + constants::lambda * 
+		 (-effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i]
+		  + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 1]
+		  + effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 2]
+		   - effectiveField[3 * i + 1] * spin[3 * i + 2] * spin[3 * i + 2]));
+
+		rk[3 * i + 2] = constants::gamma * constants::dt * (spin[3 * i] * effectiveField[3 * i + 1] - spin[3 * i + 1] * effectiveField[3 * i] 
+		+ constants::lambda * 
+		(-effectiveField[3 * i + 2] * spin[3 * i] * spin[3 * i]
+		 - effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 1]
+		 + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 2] 
+		 + effectiveField[3 * i + 1] * spin[3 * i + 1] * spin[3 * i + 2]));
 	}
 }
 
