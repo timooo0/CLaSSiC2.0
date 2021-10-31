@@ -1,49 +1,52 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include "constants.hpp"
 
 namespace constants
 {
 	// Physical constants
-	const double boltzmann = 1.38064852e-23;
-	const double gFactor = -2.002;
-	const double bohrMagneton = 9.274009994e-24;
-	const double hBar = 1.054571817e-34;
-	const double gamma = -1.760859644e11;
-	const double pi = 3.14159265359;
+    double boltzmann = 1.38064852e-23;
+    double gFactor = -2.002;
+    double bohrMagneton = 9.274009994e-24;
+    double hBar = 1.054571817e-34;
+    double gamma = -1.760859644e11;
+    double pi = 3.14159265359;
 
 	// System constants
-	const double spinSize = 3.5;
-	const int baseAtoms = 1;
-	const int nUnitCells = 12;
-	const int nDimensions = 2;
-	const int nAtoms = baseAtoms * std::pow(nUnitCells, nDimensions);
-	const std::vector<std::vector<double>> unitVectors = {{baseAtoms, 0, 0}, {0, 1, 0}, {0, 0, 0}};
+	double spinSize = 3.5;
+	int baseAtoms = 1;
+	int nUnitCells = 1;
+	int nDimensions = 1;
+	int nAtoms = baseAtoms * std::pow(nUnitCells, nDimensions);
+	std::vector<std::vector<double>> unitVectors = {{(double)baseAtoms, 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
 
 	// Simulation settings;
-	const int spinInit = 2; // 0: Z-direction, 1: angle/45 degrees, 2: small z angle, 3: rotor
-	const double minDistance = 1.1;
-	const int nSims = 1;
+	int spinInit = 1; // 0: Z-direction, 1: angle with z-axis, 2: small angle with z-axis, 3: rotor, 4: Z-direction alternating
+	double angle = 0.25 * constants::pi;
+	double minDistance = 1.1;
+	int nSims = 1;
 
 	// Simulation parameters
-	const double dt = 1e-15;
-	const int steps = 1e6;
-	const double anisotropy[3] = {0, 0, 1}; // Should be normalized
-	const double anisotropyStrength = 0;
-	const double magneticField[3] = {0, 0, 0};
-	const double J = 2 * boltzmann;
-	const double lambda = 5e-5;
+	double dt = 1e-14;
+	int steps = 1e6;
+	double anisotropy[3] = {0, 0, 1}; // Should be normalized
+	double anisotropyStrength = 0;
+	double magneticField[3] = {0, 0, 50};
+	double J = 0 * boltzmann;
+	double temperature = 0;
+	double lambda = 1e-2;
 
 	// File constants
-	const std::string inputFile = "spin.csv";
-	const std::string outputFile = "data/data.dat";
-	const double offset = 14; // offset, nAtoms, dt, steps. J, lambda, 3 magneticField, 3 anisotropy, temperature, length
-	const double length = 3 * nAtoms;
+	std::string inputFile = "spin.csv";
+	std::string outputFile = "data/data.dat";
+	double offset = 14; // offset, nAtoms, dt, steps. J, lambda, 3 magneticField, 3 anisotropy, temperature, length
+	double length = 3 * nAtoms;
 
 	// Prefactors
-	const double exchangePrefactor = -2 * J * spinSize / (gFactor * bohrMagneton);
-	const double temperatureSigma = 2. * lambda * boltzmann * hBar * dt / (gFactor * gFactor * bohrMagneton * bohrMagneton * spinSize);
-	const double anisotropyMatrix[9] = {
+	double exchangePrefactor = -2 * J * spinSize / (gFactor * bohrMagneton);
+	double temperatureSigma = 2. * lambda * boltzmann * hBar * dt / (gFactor * gFactor * bohrMagneton * bohrMagneton * spinSize);
+	double anisotropyMatrix[9] = {
 		anisotropyStrength * anisotropy[0] * anisotropy[0],
 		anisotropyStrength * anisotropy[0] * anisotropy[1],
 		anisotropyStrength * anisotropy[0] * anisotropy[2],
@@ -57,6 +60,6 @@ namespace constants
 }
 
 // Enables printing for debug purposes
-	const bool printPositions = false;
-	const bool printNeighbours = false;
-	const bool printInitialize = false;
+bool printPositions = false;
+bool printNeighbours = false;
+bool printInitialize = false;
