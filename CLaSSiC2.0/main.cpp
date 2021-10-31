@@ -1,19 +1,62 @@
 #include <iostream>
+#include <string>
 #include "simulation.hpp"
+#include "constants.hpp"
 
-int main() {
+int main(int argc, char *argv[])
+{
 	/*
-	Simulation is initialized here and called with paramters such as temperature.
-	TODO: Implement a way to run different structures and parameters from shell command
+	Get all the parameters from the program call
+	Simulation is initialized here and run.
 	*/
-	Simulation sim;
+	for (int i = 1; i < argc; i++)
+	{
+		if (std::string(argv[i]) == "-dt"){
+			constants::dt = std::stod(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-steps"){
+			constants::steps = (int)std::stod(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-J"){
+			constants::J = std::stod(argv[i+1])*constants::boltzmann;
+		}
+		else if (std::string(argv[i]) == "-lambda"){
+			constants::lambda = std::stod(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-B"){
+			constants::magneticField[2] = std::stod(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-anisotropy"){
+			constants::anisotropyStrength = std::stod(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-T"){
+			constants::temperature = std::stod(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-init"){
+			constants::spinInit = std::stoi(argv[i+1]);
+		}
+		else if (std::string(argv[i]) == "-angle"){
+			constants::angle = std::stod(argv[i+1])*constants::pi/180.;
+		}
+		else if (std::string(argv[i]) == "-structure"){
+			if (std::string(argv[i+1]) == "single"){
+				constants::nUnitCells = 1;
+				constants::nDimensions = 1;
+			}
+			else if (std::string(argv[i+1]) == "square") {
+				constants::nUnitCells = 1;
+				constants::nDimensions = 2;
+				constants::unitVectors = {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
+			} else {
+				std::cerr << "-structure only has the following options: single and square\n";
+			}
+		}
 
-	for (int i = 0; i < constants::nSims; i++) {
-		// sim.initialize((0.0001+(float)i) / constants::nSims * 0.5 * constants::pi);
-		// sim.run(i, ((float)i) / constants::nSims*100);
-		// sim.initialize(0.872665);
-		sim.run(i, 5);
+		i++;
 	}
+	
+	Simulation sim;
+	sim.run();
 	
 	return 0;
 }
