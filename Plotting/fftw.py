@@ -22,12 +22,14 @@ if not os.path.exists(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat") and not o
     latticePosition = helper.positionSquareLattice(sideLength, param[fNum])
     qScatter =  helper.qAll(sideLength)
     I_total, eIndex = helper.runTransform(latticePosition, x[fNum,:,:], qScatter, sideLength, maxEnergyIndex, param[fNum])
+    I_total = I_total.reshape((sideLength, sideLength, maxEnergyIndex))
     print(f'duration: {time.time()-start}')
 else:
     print("Pulling fourier data from file")
     I_total = np.fromfile(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat")
     I_total = I_total.reshape((sideLength, sideLength, maxEnergyIndex))
     eIndex = np.fromfile(os.getcwd() + "\\CLaSSiC2.0\\data\\energyIndex.dat").astype(np.int32)
+
 
 
 eIndex = eIndex[energies[eIndex].argsort()]
@@ -38,6 +40,7 @@ plt.title("Histogram of the energies of the 2D spin waves")
 eIndex = eIndex[np.where(values>=1)]
 
 extent = [-np.pi, np.pi, -np.pi, np.pi]
+
 fig, ax = plt.subplots(4, 4)
 for i in range(4):
     for j in range(4):
