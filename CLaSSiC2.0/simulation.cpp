@@ -11,15 +11,9 @@ Simulation::Simulation()
 {
 	/*
 	Constructer for the simulation class.
-		- Removes all previous data
 		- Calls load to build the crystal
 		- Calls initialize to set to start orientation of the spins
 	*/
-
-	int i = 0;
-	int succes = 0;
-	std::filesystem::remove_all("data/");
-	std::filesystem::create_directory("data");
 
 	load();
 	initialize();
@@ -33,37 +27,13 @@ void Simulation::load()
 		2. Extends the unit cell in specified dimensions
 		3. Determine nearest neighbours
 		4. Apply periodic boundary conditions
-
-		TODO: remove the file read since crystals are now constructed from scratch
 	*/
 
-	std::fstream file;
-	std::string line;
-	size_t pos = 0;
-	int i = 0;
-	file.open(constants::inputFile);
-	if (!file.is_open())
-	{
-		std::cout << "Could not open file.\n";
-	}
+	//Create the basis atom
+	position.push_back(0); //x
+	position.push_back(0); //y
+	position.push_back(0); //z
 
-	// Get the positions
-	while (std::getline(file, line) && i / 3 < constants::baseAtoms)
-	{
-		while ((pos = line.find(", ")) != std::string::npos)
-		{
-			position.push_back(std::stod(line.substr(0, pos)));
-			line.erase(0, pos + 1);
-			i++;
-		}
-		if (!line.empty())
-		{
-			position.push_back(std::stod(line));
-			i++;
-		}
-	}
-
-	file.close();
 
 	// Add more unit cells
 	std::vector<double> basePosition;
@@ -162,7 +132,7 @@ void Simulation::load()
 #endif
 }
 
-void Simulation::initialize(double angle)
+void Simulation::initialize()
 {
 	/*
 	Initializing the spin orientations
@@ -180,45 +150,55 @@ void Simulation::initialize(double angle)
 		}
 		break;
 	case 1:
-		//Angle of 45 degrees with z-axis
+		//Angle with z-axis
 		for (int i = 0; i < constants::nAtoms; i++)
 		{
-			spin[3 * i] = std::cos((float)i / constants::nAtoms * 2 * constants::pi) * std::sin(angle);
-			spin[3 * i + 1] = std::sin((float)i / constants::nAtoms * 2 * constants::pi) * std::sin(angle);
-			spin[3 * i + 2] = std::cos(angle);
+			spin[3 * i] = std::cos((float)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
+			spin[3 * i + 1] = std::sin((float)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
+			spin[3 * i + 2] = std::cos(constants::angle);
 		}
 		break;
 	case 2:
 		//Small z angle for spin waves
 		for (int i = 0; i < constants::nAtoms; i++)
 		{
-			spin[3 * i] = 0.001 * std::cos((float)i / constants::nAtoms * mode * 2 * constants::pi) * std::sin(angle);
-			spin[3 * i + 1] = 0.001 * std::sin((float)i / constants::nAtoms * mode * 2 * constants::pi) * std::sin(angle);
+			spin[3 * i] = 0.001 * std::cos((float)i / constants::nAtoms * mode * 2 * constants::pi) * std::sin(constants::angle);
+			spin[3 * i + 1] = 0.001 * std::sin((float)i / constants::nAtoms * mode * 2 * constants::pi) * std::sin(constants::angle);
 			spin[3 * i + 2] = 1;
 		}
 		normalize();
 		break;
 	case 3:
 		//Rotor mode for two spins
-		spin[0] = std::cos(0) * std::sin(angle);
+		spin[0] = std::cos(0) * std::sin(constants::angle);
 		spin[1] = 0;
-		spin[2] = std::cos(angle);
+		spin[2] = std::cos(constants::angle);
 		spin[3] = -spin[0];
 		spin[4] = 0;
 		spin[5] = spin[2];
 		break;
+	case 4:
+		for (int i = 0; i < constants::nAtoms; i++){
+			spin[3 * i] = 0;
+			spin[3 * i + 1] = 0;
+			if ((i+i/constants::nUnitCells)%2==0){
+				spin[3 * i + 2] = 1;
+			} else {
+			spin[3 * i + 2] = -1;
+			}
+		}
 	}
 
 //Printing
 # if printInitialize
 	std::cout << "Spin initialization: \n";
 	for (int i = 0; i < constants::nAtoms; i++) {
-		std::cout << "x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
+		std::cout << "Atom: " << i/constants::nUnitCells << ", "<<i%constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
 	}
 # endif
 }
 
-void Simulation::run(int iterator, double temperature)
+void Simulation::run()
 {
 	/*
 	Actually runs the simulation
@@ -230,19 +210,25 @@ void Simulation::run(int iterator, double temperature)
 	*/
 
 	// Open and write to file
+	int i=0;
 	std::ofstream file;
 	std::string dataFile = constants::outputFile;
-	dataFile.insert(dataFile.find("."), std::to_string(iterator));
+	dataFile.insert(dataFile.find("."), std::to_string(i));
+	while (std::filesystem::exists(dataFile)) {
+		i++;
+		dataFile = constants::outputFile;
+		dataFile.insert(dataFile.find("."), std::to_string(i));
+	}
 	file.open(dataFile, std::ios::binary);
-	writeConstants(file, temperature);
+	writeConstants(file);
 
 	// Temperature fluctatuations
 	std::random_device seed;
 	std::default_random_engine engine{seed()};
 	std::normal_distribution<double> temperatureDistribution;
-	if (constants::temperatureSigma != 0 && temperature != 0)
+	if (constants::temperatureSigma != 0 && constants::temperature != 0)
 	{
-		temperatureDistribution = std::normal_distribution<double>(0, std::sqrt(constants::temperatureSigma * temperature));
+		temperatureDistribution = std::normal_distribution<double>(0, std::sqrt(constants::temperatureSigma * constants::temperature));
 	}
 
 	// Stopwatch
@@ -251,7 +237,7 @@ void Simulation::run(int iterator, double temperature)
 	// Actual run
 	for (int i = 0; i < constants::steps; i++)
 	{
-		if (constants::temperatureSigma != 0 && temperature != 0)
+		if (constants::temperatureSigma != 0 && constants::temperature != 0)
 		{
 			for (int i = 0; i < constants::nAtoms * 3; i++)
 			{
@@ -293,7 +279,7 @@ void Simulation::normalize()
 	}
 }
 
-void Simulation::writeConstants(std::ofstream &f, double &temperature)
+void Simulation::writeConstants(std::ofstream &f)
 {
 	/*
 	Writes all constants and system parameters to the start of the file
@@ -308,7 +294,7 @@ void Simulation::writeConstants(std::ofstream &f, double &temperature)
 	f.write((char *)&constants::lambda, sizeof(double));
 	f.write((char *)&constants::magneticField[0], 3 * sizeof(double));
 	f.write((char *)&constants::anisotropy[0], 3 * sizeof(double));
-	f.write((char *)&temperature, sizeof(double));
+	f.write((char *)&constants::temperature, sizeof(double));
 	f.write((char *)&constants::length, sizeof(double));
 }
 
