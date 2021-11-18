@@ -12,9 +12,11 @@ void Integrator::calculateEffectiveField(std::vector<std::vector<double>> &neigh
 		memcpy(&effectiveField[3 * i], &constants::magneticField, sizeof(constants::magneticField)); // set to external field
 
 		// Anisotropy
-		effectiveField[3 * i] -= dotProduct(&constants::anisotropyMatrix[0], &spin[3 * i]);
-		effectiveField[3 * i + 1] -= dotProduct(&constants::anisotropyMatrix[3], &spin[3 * i]);
-		effectiveField[3 * i + 2] -= dotProduct(&constants::anisotropyMatrix[6], &spin[3 * i]);
+		// effectiveField[3 * i] -= dotProduct(&constants::anisotropyMatrix[0], &spin[3 * i]);
+		// effectiveField[3 * i + 1] -= dotProduct(&constants::anisotropyMatrix[3], &spin[3 * i]);
+		// effectiveField[3 * i + 2] -= dotProduct(&constants::anisotropyMatrix[6], &spin[3 * i]);
+		// effectiveField[3 * i] -= constants::anisotropyPlane * spin[3 * i];
+		effectiveField[3 * i + 2] -= constants::anisotropyStrength * spin[3 * i + 2];
 
 		// Nearest neighbours
 		for (int j : neighbours[i])
@@ -34,7 +36,6 @@ void Integrator::evaluate(std::vector<std::vector<double>> &neighbours, std::vec
 	calculateEffectiveField(neighbours, spin);
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
-
 		rk[3 * i] = constants::gamma * constants::dt * (spin[3 * i + 1] * effectiveField[3 * i + 2] - spin[3 * i + 2] * effectiveField[3 * i + 1]
 		 + constants::lambda * 
 		 (effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i + 1]
@@ -48,6 +49,7 @@ void Integrator::evaluate(std::vector<std::vector<double>> &neighbours, std::vec
 		  + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 1]
 		  + effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 2]
 		   - effectiveField[3 * i + 1] * spin[3 * i + 2] * spin[3 * i + 2]));
+
 
 		rk[3 * i + 2] = constants::gamma * constants::dt * (spin[3 * i] * effectiveField[3 * i + 1] - spin[3 * i + 1] * effectiveField[3 * i] 
 		+ constants::lambda * 
@@ -63,7 +65,7 @@ void Integrator::integrate(std::vector<std::vector<double>> &neighbours, std::ve
 	evaluate(neighbours, spin);
 	for (int i = 0; i < constants::nAtoms * 3; i++)
 	{
-		rkPos[i] = spin[i] + rk[i] / 2;
+		rkPos[i] = spin[i] + rk[i] / 2.;
 	}
 	evaluate(neighbours, rkPos);
 
