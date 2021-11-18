@@ -28,10 +28,6 @@ print(f'z difference: {np.max(z)-np.min(z)}')
 print(np.size(np.fft.fft(x)))
 print('plotting...')
 
-# y = 9.274009994e-24*25/(1.38064852e-23*T)
-# langevin = np.cosh(y)/np.sinh(y) - 1/y
-
-
 print(f'precession energy: {4.135665538536e-12*np.abs(np.fft.fftfreq(np.size(x),d=param[i]["dt"])[np.argmax(np.abs(np.fft.fft(x[0,0,:])))])} MeV')
 
 ax.plot(angleArray, 6.241509e21*2.002* 9.274009994e-24*10*np.cos(np.radians(angleArray)),'r')
