@@ -22,14 +22,16 @@ namespace constants
     // Simulation settings;
     extern  int spinInit;
     extern double angle;
+    extern int mode;
     extern double minDistance;
-    extern int nSims;
 
     // Simulation parameters
     extern double dt;
     extern int steps;
     extern double anisotropy[3];
     extern double anisotropyStrength;
+    extern double anisotropyAxis;
+	extern double anisotropyPlane;
     extern double magneticField[3];
     extern double J;
     extern double lambda;
@@ -47,6 +49,7 @@ namespace constants
     extern double anisotropyMatrix[9];
 }
 
+void setDerivatives();
 // Enables printing for debug purposes
 // bool printPositions = false;
 // bool printNeighbours = false;
