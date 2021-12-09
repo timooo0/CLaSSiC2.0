@@ -4,20 +4,25 @@ import matplotlib.pyplot as plt
 
 param, x, y, z = helper.getData()
 fNum = 0
-print(x[fNum, :,:].shape)
-# print(data[offset:offset+36])
-# for i in range(12):
-#     print(f'x: {x[0,i]}, y: {y[0, i]}')
-# print(f'z difference: {z[:, -1]-z[:, -1]}')
-fig, ax = plt.subplots(1,2)
-end = int(1e4)
-time = np.linspace(0,param[fNum]["dt"]*param[fNum]["steps"],param[fNum]["steps"])
-for i in range(1):
-    for j in range(2):
-        print(3*i+j, x[0, 3*i+j])
-        ax[j].plot(time[:end],x[fNum, 3*i+j, :end], 'r')
-        ax[j].plot(time[:end],y[fNum, 3*i+j, :end], 'b')
-        ax[j].plot(time[:end],z[fNum, 3*i+j, :end], 'g')
+atom = 0
+rows = 3
+columns = 4
 
+fig, ax = plt.subplots(rows,columns)
+end = int(1e2)
+time = np.linspace(0,param[fNum]["dt"]*param[fNum]["steps"],param[fNum]["steps"])
+for i in range(rows):
+    for j in range(columns):
+        if rows > 1:
+            ax[i][j].plot(time[:end],x[fNum, 3*i+j, :end], 'r')
+            ax[i][j].plot(time[:end],y[fNum, 3*i+j, :end], 'b')
+            ax[j].plot(time[:end],z[fNum, 3*i+j, :end], 'g')
+        else:
+            ax[j].plot(time[:end],x[fNum, 3*i+j, :end], 'r')
+            ax[j].plot(time[:end],y[fNum, 3*i+j, :end], 'b')
+            ax[j].plot(time[:end],z[fNum, 3*i+j, :end], 'g')
+        precession = helper.constants["Hz_to_meV"]*np.fft.fftfreq(param[fNum]["steps"],d=param[fNum]["dt"])[np.argmax(np.fft.fft(x[fNum, atom, :]))]
+        print(f'Precession atom {3*i+j}: {precession}')
+        print(f'start atom {3*i+j}: {x[fNum, 3*i+j, 0]}, {y[fNum, 3*i+j, 0]}, {z[fNum, 3*i+j, 0]}')
 
 plt.show()
