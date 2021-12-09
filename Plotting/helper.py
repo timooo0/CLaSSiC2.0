@@ -69,6 +69,7 @@ def scatter(q, position, spin, param):
     output = pyfftw.empty_aligned((param["atoms"], int(param["steps"]//2+1)), dtype='complex128')
     ic_sum = 0
     for i in range(param["atoms"]):
+
         input[i, :] = spin[i, :]
         ic_sum += np.exp(-1j * np.dot(q, position[i])) * spin[i, 0]
 
@@ -162,15 +163,29 @@ def plotTheory(structure, length, param, ax, c):
     if structure=="line":
         q = scatterLine(int(length/2))
         xData = np.linspace(0,int((q.shape[0]))-1, q.shape[0])
+
         if param["J"] > 0:
             yData = np.abs(constants["J_to_meV"]*(4*param["J"]*3.5*(1-np.cos(q[:,0]))-constants["gFactor"]*constants["bohrMagneton"]*(param["magneticField"][-1]-param["anisotropyStrength"])))
         else:
             a1 = (4*param["J"]*3.5)**2*(1-np.cos(q[:,0])**2)
-            a2 = 8*param["J"]*3.5**2*constants["gFactor"]*constants["bohrMagneton"]*param["anisotropyStrength"]/(2)
-            a3 = 3.5**2*(constants["gFactor"]*constants["bohrMagneton"]*param["anisotropyStrength"]/2)**2
-            b = a1+a3
+            a2 = -8*np.abs(param["J"])*3.5*constants["gFactor"]*constants["bohrMagneton"]*param["anisotropyStrength"]
+            a3 = (constants["gFactor"]*constants["bohrMagneton"]*param["anisotropyStrength"])**2
+            b = a1+a2+a3
             # yData = constants["J_to_meV"]*(np.sqrt((4*param["J"]*3.5)**2*(1-np.cos(q[:,0])**2)+(constants["gFactor"]*constants["bohrMagneton"]*param["anisotropyStrength"])**2)-constants["gFactor"]*constants["bohrMagneton"]*param["magneticField"][-1])
             yData = constants["J_to_meV"]*(np.sqrt(a1 + a2 + a3)-constants["gFactor"]*constants["bohrMagneton"]*param["magneticField"][-1])
-            ax.plot(xData, yData, constants["colors"][c], label=f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T', zorder=0)
-            yData = constants["J_to_meV"]*(np.sqrt(a1 + a2 + a3)+constants["gFactor"]*constants["bohrMagneton"]*param["magneticField"][-1])
-        ax.plot(xData, yData, constants["colors"][c], label=f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T', zorder=0)
+            if param["magneticField"][-1] != 0:
+                ax.plot(xData, yData, constants["colors"][c], label=f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T', zorder=0)
+                yData = constants["J_to_meV"]*(np.sqrt(a1 + a2 + a3)+constants["gFactor"]*constants["bohrMagneton"]*param["magneticField"][-1])
+
+    if structure=="square":
+        q = scatterSquare(int(length/2))
+        xData = np.linspace(0,int((q.shape[0]))-1, q.shape[0])
+        if param["J"] > 0:
+             yData = np.abs(constants["J_to_meV"]*(8*param["J"]*3.5*(1-0.5*(np.cos(q[:,0])+np.cos(q[:,1])))-constants["gFactor"]*constants["bohrMagneton"]*(param["magneticField"][-1]-param["anisotropyStrength"])))
+
+    if param["magneticField"][-1] != 0:
+            labelText = f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T'
+    else:
+        labelText = f'Anis = {param["anisotropyStrength"]:.0f} T'
+    ax.plot(xData, yData, constants["colors"][c], label=labelText)
+    
