@@ -5,19 +5,23 @@ del *.dat
 cd ..
 
 setlocal
-set dt=1e-14
+set dt=1e-15
 set steps=1e6
 set J=2
-set lambda=0
+set lambda=1e-3
 set B=0
-set anisotropy=0
-set T=0
-set init=0
+set anisotropyAxis=0
+set anisotropyPlane=0
+set T=1
+@REM 0: Z-direction, 1: angle with z-axis, 2: small angle with z-axis, 3: rotor, 4: Z-direction alternating
+set init=2
 set angle=45
-set structure=single
+set mode=-3
+set structure=square
+set nCellsX=30
 
-
-for %%t in (0 10 20) do ^
-model.exe -dt %dt% -steps %steps% -J %J% -lambda %lambda% -B %B% ^
--anisotropy %anisotropy% -T %T% -init %init% -angle %%t -structure %structure% echo %%t
+for %%i in (10) do ^
+model.exe -dt %dt% -steps %steps% -J %J% -lambda %lambda% -B %%i ^
+-anisotropyAxis %anisotropyAxis% -anisotropyPlane %anisotropyPlane% ^
+-T %T% -init %init% -angle %angle% -mode %mode% -structure %structure% -nCellsX %nCellsX%
 endlocal
