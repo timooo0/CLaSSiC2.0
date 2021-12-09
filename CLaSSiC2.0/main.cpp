@@ -26,9 +26,13 @@ int main(int argc, char *argv[])
 		else if (std::string(argv[i]) == "-B"){
 			constants::magneticField[2] = std::stod(argv[i+1]);
 		}
-		else if (std::string(argv[i]) == "-anisotropy"){
-			constants::anisotropyStrength = std::stod(argv[i+1]);
-			std::cout << "anisotropyStrength: " << constants::anisotropyStrength << std::endl;
+		else if (std::string(argv[i]) == "-anisotropyAxis"){
+			constants::anisotropyAxis = std::stod(argv[i+1]);
+			std::cout << "anisotropyAxis: " << constants::anisotropyAxis << std::endl;
+		}
+		else if (std::string(argv[i]) == "-anisotropyPlane"){
+			constants::anisotropyPlane = std::stod(argv[i+1]);
+			std::cout << "anisotropyPlane: " << constants::anisotropyPlane << std::endl;
 		}
 		else if (std::string(argv[i]) == "-T"){
 			constants::temperature = std::stod(argv[i+1]);
