@@ -1,5 +1,7 @@
-#data files
+#folders
+build/
 data/
+Testing/
 
 #executables
 *.exe
