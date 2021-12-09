@@ -16,7 +16,7 @@ namespace constants
 	// System constants
 	double spinSize = 3.5;
 	int baseAtoms = 1;
-	int nUnitCells = 12;
+	int nUnitCells = 2;
 	int nDimensions = 1;
 	int nAtoms;
 	std::vector<std::vector<double>> unitVectors;
@@ -29,15 +29,15 @@ namespace constants
 
 	// Simulation parameters
 	double dt = 1e-15;
-	int steps = 1e6;
+	int steps = (int)1e6;
 	double anisotropy[3] = {0, 0, 1}; // Should be normalized
 	double anisotropyStrength = 0;
 	double anisotropyAxis = 0;
 	double anisotropyPlane = 0;
-	double magneticField[3] = {0, 0, 20};
-	double J = 2 * boltzmann;
-	double temperature = 1;
-	double lambda = 1e-3;
+	double magneticField[3] = {0, 0, 0};
+	double J = -2 * boltzmann;
+	double temperature = 0;
+	double lambda = 0;
 
 	// File constants
 	std::string inputFile = "spin.csv";
@@ -58,14 +58,15 @@ bool printNeighbours = false;
 bool printInitialize = false;
 
 void setDerivatives(){
-	constants::nAtoms = constants::baseAtoms * std::pow(constants::nUnitCells, constants::nDimensions);
+	constants::nAtoms = constants::baseAtoms * (int)std::pow(constants::nUnitCells, constants::nDimensions);
 	constants::unitVectors = {{(double)constants::baseAtoms, 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
 
 	constants::length = 3 * constants::nAtoms;
 
 	constants::exchangePrefactor = -2 * constants::J * constants::spinSize / (constants::gFactor * constants::bohrMagneton);
-	constants::temperatureSigma = 2. * constants::lambda * constants::boltzmann * constants::hBar * constants::dt / 
-		(constants::gFactor * constants::gFactor * constants::bohrMagneton * constants::bohrMagneton * constants::spinSize);
+	constants::temperatureSigma = std::sqrt(2. * constants::lambda * constants::boltzmann * constants::hBar * constants::dt * constants::temperature/ 
+		(constants::gFactor * constants::gFactor * constants::bohrMagneton * constants::bohrMagneton * constants::spinSize));
+	constants::anisotropyStrength = constants::anisotropyAxis;
 	double anisM[9] = {
 		constants::anisotropyStrength * constants::anisotropy[0] * constants::anisotropy[0],
 		constants::anisotropyStrength * constants::anisotropy[0] * constants::anisotropy[1],

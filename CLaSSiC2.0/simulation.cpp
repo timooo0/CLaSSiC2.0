@@ -111,22 +111,22 @@ void Simulation::load()
 
 	// Printing
 
-	std::cout << "Atom positions: \n";
-	for (int i = 0; i < position.size() / 3; i++)
-	{
-		std::cout << "x: " << position[3 * i] << " y: " << position[3 * i + 1] << " z: " << position[3 * i + 2] << std::endl;
-	}
+	// std::cout << "Atom positions: \n";
+	// for (int i = 0; i < position.size() / 3; i++)
+	// {
+	// 	std::cout << "x: " << position[3 * i] << " y: " << position[3 * i + 1] << " z: " << position[3 * i + 2] << std::endl;
+	// }
 
 
-	std::cout << "Neighbours: \n";
-	for (int i = 0; i < constants::nAtoms; i++)
-	{
-		for (int j = 0; j < neighbours[i].size(); j++)
-		{
-			std::cout << neighbours[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
+	// std::cout << "Neighbours: \n";
+	// for (int i = 0; i < constants::nAtoms; i++)
+	// {
+	// 	for (int j = 0; j < neighbours[i].size(); j++)
+	// 	{
+	// 		std::cout << neighbours[i][j] << " ";
+	// 	}
+	// 	std::cout << std::endl;
+	// }
 
 }
 
@@ -188,9 +188,9 @@ void Simulation::initialize()
 		spin[0] = std::cos(constants::angle);
 		spin[1] = std::sin(constants::angle);
 		spin[2] = std::cos(constants::angle);
-		spin[3] = swap * std::cos(constants::angle);
-		spin[4] = std::sin(constants::angle); 
-		spin[5] = swap * std::cos(constants::angle);
+		spin[3] = -std::cos(constants::angle);
+		spin[4] = -std::sin(constants::angle); 
+		spin[5] = std::cos(constants::angle);
 		break;
 	case 4:
 		// 2D spin waves
@@ -207,8 +207,10 @@ void Simulation::initialize()
 				spin[3 * i + 2] = -1;
 			}
 		}
+	break;
 	case 5:
 		// Triangle
+		std::cout << constants::spinInit;	
 		std::cout << "Triangle:\n";
 		spin[0] = delta*std::cos(30./180.*constants::pi);
 		spin[1] = delta*std::sin(30./180.*constants::pi);
@@ -222,14 +224,38 @@ void Simulation::initialize()
 		spin[7] = -delta*1;
 		spin[8] = -1;
 	break;
+		case 6:
+		// Small z angle for spin waves
+		spin[0] = 1;
+		spin[1] = 0;
+		spin[2] = 0.2;
+		for (int i = 1; i < (int)constants::nAtoms; i++)
+		{
+			if (constants::J < 0)
+				{
+					if (i % 2 == 0)
+					{
+						swap = 1;
+					}
+					else
+					{
+						swap = -1;
+					}
+				}
+				spin[3 * i] = 0;
+				spin[3 * i + 1] = 0;
+				spin[3 * i + 2] = swap * 1;
+		}
+		normalize();
+		break;
 	}
 	// Printing
 
-	std::cout << "Spin initialization: \n";
-	for (int i = 0; i < constants::nAtoms; i++)
-	{
-		std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
-	}
+// 	std::cout << "Spin initialization: \n";
+// 	for (int i = 0; i < constants::nAtoms; i++)
+// 	{
+// 		std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
+// 	}
 }
 
 void Simulation::run()
@@ -263,7 +289,7 @@ void Simulation::run()
 	std::normal_distribution<double> temperatureDistribution;
 	if (constants::temperatureSigma != 0 && constants::temperature != 0)
 	{
-		temperatureDistribution = std::normal_distribution<double>(0, std::sqrt(constants::temperatureSigma * constants::temperature));
+		temperatureDistribution = std::normal_distribution<double>(0, constants::temperatureSigma);
 	}
 
 	// Stopwatch
@@ -333,4 +359,17 @@ void Simulation::writeConstants(std::ofstream &f)
 	f.write((char *)&constants::temperature, sizeof(double));
 	f.write((char *)&constants::length, sizeof(double));
 	f.write((char *)&constants::anisotropyStrength, sizeof(double));
+}
+
+std::vector<double>* Simulation::getSpin(){
+	return &spin;
+}
+std::vector<double>* Simulation::getPosition(){
+	return &position;
+}
+std::vector<double>* Simulation::getRandomField(){
+	return &randomField;
+}
+std::vector<std::vector<int>>* Simulation::getNeighbours(){
+	return &neighbours;
 }
