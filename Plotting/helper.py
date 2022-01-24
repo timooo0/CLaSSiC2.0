@@ -64,7 +64,7 @@ def getData():
 
     return param, x, y, z
 
-def scatter(q, position, spin, param):
+def scatterReal(q, position, spin, param):
     input = pyfftw.empty_aligned((param["atoms"], param["steps"]), dtype='float64')
     output = pyfftw.empty_aligned((param["atoms"], int(param["steps"]//2+1)), dtype='complex128')
     ic_sum = 0
@@ -75,42 +75,74 @@ def scatter(q, position, spin, param):
 
     output = pyfftw.FFTW(input, output, axes=(1,), flags=('FFTW_MEASURE',), threads=8)()
     for i in range(param["atoms"]):
-        # if i>30: print(np.sum(np.exp(1j * np.dot(q, position[i]))))
         output[i,:] *= np.exp(1j * np.dot(q, position[i]))
-        # plt.plot(output[i,:])
     output = np.sum(output, axis=0)
-    # for i in range(param["atoms"]):
-    #     output[i] *= np.exp(-1j * np.dot(q, position[i])) * spin[i, 0]
     output *= ic_sum
     output = np.abs(output)
     return output
 
-def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
-    I_total = np.zeros((q.shape[0], maxEnergyIndex))
-    for i in range(q.shape[0]):
-        print(i)
-        I_aa = scatter(q[i, :], latticePosition, spin, param)
-        I_total[i, :] = I_aa[:maxEnergyIndex]
+def scatter(q, position, spin, param):
+    input = pyfftw.empty_aligned((param["atoms"], param["steps"]), dtype='complex128')
+    output = pyfftw.empty_aligned((param["atoms"], param["steps"]), dtype='complex128')
+    ic_sum = 0
+    for i in range(param["atoms"]):
 
-    # for i in range(q.shape[0]):
-    #     I_total[i, :] = I_total[i, :]/np.max(I_total[i, :])
-    print(I_aa.shape, maxEnergyIndex)
+        input[i, :] = spin[i, :]
+        ic_sum += np.exp(-1j * np.dot(q, position[i])) * spin[i, 0]
+
+    output = pyfftw.FFTW(input, output, axes=(1,), flags=('FFTW_MEASURE',), threads=8)()
+    for i in range(param["atoms"]):
+        output[i,:] *= np.exp(1j * np.dot(q, position[i]))
+    output = np.sum(output, axis=0)
+    output *= ic_sum
+    return output
+
+def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
+    I_total = np.zeros((q.shape[0], maxEnergyIndex), dtype="complex128")
+    for i in range(q.shape[0]):
+        if i < q.shape[0]-1:
+            print(f'progress: {i/q.shape[0]*100:.2f} %', end='\r')
+        else:
+            print(f'progress: finshed')
+        I_aa = scatterReal(q[i, :], latticePosition, spin, param)
+        # if i==1:
+        #     frequencies = np.fft.fftfreq(param["steps"], param["dt"])
+        #     energies = 4.1357e-12 * frequencies
+        #     plt.plot(energies[:], np.abs(I_aa[:]), label="abs")
+        #     plt.plot(energies[:], I_aa[:].real, label='real')
+        #     plt.plot(energies[:], I_aa[:].imag, label='imag')
+        I_total[i, :] = I_aa[:maxEnergyIndex]
     return I_total
 
-def positionLine(size, param):
+def positionLine(size):
     latticePosition = []
     for i in range(size):
         latticePosition.append([i, 0, 0])
-    latticePosition = np.array(latticePosition).reshape(param["atoms"], 3)
+    latticePosition = np.array(latticePosition).reshape(size, 3)
 
     return latticePosition
 
-def positionSquare(size, param):
+def positionSquare(size):
     latticePosition = []
     for i in range(size):
         for j in range(size):
             latticePosition.append([j, i, 0])
-    latticePosition = np.array(latticePosition).reshape(param["atoms"], 3)
+    latticePosition = np.array(latticePosition).reshape(size**2, 3)
+
+    return latticePosition
+
+def positionTriangle(size):
+    latticePosition = []
+    offset = 0
+    for i in range(size):
+        for j in range(size):
+            if i%2==0:
+                offset = 0
+            else:
+                offset = 0.5
+
+            latticePosition.append([j+offset, 0.5*np.sqrt(3)*i, 0])
+    latticePosition = np.array(latticePosition).reshape(size**2, 3)
 
     return latticePosition
 
@@ -130,6 +162,15 @@ def scatterSquare(size):
 
     return q
 
+def scatterTriangle(size):
+    q = np.array([0, 0, 0])
+    print(f'triangluar lattice size: {size}')
+    q = reciprocalPath([0,0,0], [np.pi, -1/np.sqrt(3)*np.pi, 0], q, size)
+    q = reciprocalPath([np.pi,-1/np.sqrt(3)*np.pi,0], [np.pi, 0, 0], q, size)
+    q = reciprocalPath([np.pi, 0, 0], [0,0,0], q, size)
+    q = np.delete(q, 0, axis=0)
+
+    return q
 def scatterAll(size):
     q = np.array([0, 0, 0])
     for i in range(size):
@@ -153,10 +194,15 @@ def plotMarker(structure, length, ax):
         ax.set_xticks([0, length, 2*length])
         ax.set_xticklabels([r'$R$',r'$\Gamma$',r'$R$'])
     elif structure == "square":
-        for i in range(3-1):
-            ax.axvline((1+i)*length)
+        for i in range(4):
+            ax.axvline((i)*length)
         ax.set_xticks([0, length, 2*length, 3*length])
         ax.set_xticklabels([r'$\Gamma$',r'$M$',r'$R$',r'$\Gamma$'])
+    elif structure == "triangle":
+        for i in range(4):
+            ax.axvline((i)*length)
+        ax.set_xticks([0, length, 2*length, 3*length])
+        ax.set_xticklabels([r'$\Gamma$',r'$K$',r'$M$',r'$\Gamma$'])
 
 def plotTheory(structure, length, param, ax, c):
 
@@ -183,9 +229,13 @@ def plotTheory(structure, length, param, ax, c):
         if param["J"] > 0:
              yData = np.abs(constants["J_to_meV"]*(8*param["J"]*3.5*(1-0.5*(np.cos(q[:,0])+np.cos(q[:,1])))-constants["gFactor"]*constants["bohrMagneton"]*(param["magneticField"][-1]-param["anisotropyStrength"])))
 
+    if structure=="triangle":
+        xData = []
+        yData = []
     if param["magneticField"][-1] != 0:
             labelText = f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T'
     else:
         labelText = f'Anis = {param["anisotropyStrength"]:.0f} T'
+
     ax.plot(xData, yData, constants["colors"][c], label=labelText)
     
