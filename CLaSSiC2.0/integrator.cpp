@@ -19,9 +19,9 @@ void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbou
 		// effectiveField[3 * i + 1] -= dotProduct(&constants::anisotropyMatrix[3], &spin[3 * i]);
 		// effectiveField[3 * i + 2] -= dotProduct(&constants::anisotropyMatrix[6], &spin[3 * i]);
 		// effectiveField[3 * i] -= constants::anisotropyPlane * spin[3 * i];
-		effectiveField[3 * i + 2] -= constants::anisotropyAxis * spin[3 * i + 2];
+		effectiveField[3 * i + 2] += constants::anisotropyAxis * spin[3 * i + 2];
 
-		effectiveField[3 * i + 2] += constants::anisotropyPlane * spin[3 * i + 2];
+		effectiveField[3 * i + 2] -= constants::anisotropyPlane * spin[3 * i + 2];
 
 		jx = 0;
 		jy = 0;
@@ -48,14 +48,14 @@ void Integrator::evaluate(std::vector<std::vector<int>> &neighbours, std::vector
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
 		rk[3 * i] = constants::gamma * constants::dt * (spin[3 * i + 1] * effectiveField[3 * i + 2] - spin[3 * i + 2] * effectiveField[3 * i + 1]
-		 + constants::lambda * 
+		- constants::lambda * 
 		 (effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i + 1]
 		  - effectiveField[3 * i] * spin[3 * i + 1] * spin[3 * i + 1]
 		  + effectiveField[3 * i + 2] * spin[3 * i] * spin[3 * i + 2]
 		   - effectiveField[3 * i] * spin[3 * i + 2] * spin[3 * i + 2]));
 		
 		rk[3 * i + 1] = constants::gamma * constants::dt * (spin[3 * i + 2] * effectiveField[3 * i] - spin[3 * i] * effectiveField[3 * i + 2]
-		 + constants::lambda * 
+		- constants::lambda * 
 		 (-effectiveField[3 * i + 1] * spin[3 * i] * spin[3 * i]
 		  + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 1]
 		  + effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 2]
@@ -63,7 +63,7 @@ void Integrator::evaluate(std::vector<std::vector<int>> &neighbours, std::vector
 
 
 		rk[3 * i + 2] = constants::gamma * constants::dt * (spin[3 * i] * effectiveField[3 * i + 1] - spin[3 * i + 1] * effectiveField[3 * i] 
-		+ constants::lambda * 
+		- constants::lambda * 
 		(-effectiveField[3 * i + 2] * spin[3 * i] * spin[3 * i]
 		 - effectiveField[3 * i + 2] * spin[3 * i + 1] * spin[3 * i + 1]
 		 + effectiveField[3 * i] * spin[3 * i] * spin[3 * i + 2] 
