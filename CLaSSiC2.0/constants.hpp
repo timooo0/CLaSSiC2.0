@@ -18,9 +18,11 @@ namespace constants
     extern int nDimensions;
     extern int nAtoms;
     extern std::vector<std::vector<double>> unitVectors;
+    extern std::vector<std::vector<double>> basisPosition;
 
     // Simulation settings;
-    extern  int spinInit;
+    extern int spinInit;
+    extern int geometry;
     extern double angle;
     extern int mode;
     extern double minDistance;

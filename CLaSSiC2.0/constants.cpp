@@ -10,26 +10,28 @@ namespace constants
     double gFactor = -2.002;
     double bohrMagneton = 9.274009994e-24;
     double hBar = 1.054571817e-34;
-    double gamma = -1.760859644e11;
+    double gamma = 1.760859644e11;
     double pi = 3.14159265359;
 
 	// System constants
 	double spinSize = 3.5;
 	int baseAtoms = 1;
-	int nUnitCells = 2;
+	int nUnitCells = 8;
 	int nDimensions = 1;
 	int nAtoms;
-	std::vector<std::vector<double>> unitVectors;
+	std::vector<std::vector<double>> unitVectors = {{1., 0., 0.}};
+	std::vector<std::vector<double>> basisPosition = {{0., 0., 0.}};
 
 	// Simulation settings;
 	int spinInit = 2; // 0: Z-direction, 1: angle with z-axis, 2: small angle with z-axis, 3: rotor, 4: Z-direction alternating
+	int geometry = 1;
 	double angle = 0.25 * constants::pi;
-	int mode = 0;
+	int mode = 1;
 	double minDistance = 1.1;
 
 	// Simulation parameters
 	double dt = 1e-15;
-	int steps = (int)1e6;
+	int steps = (int) 1e6;
 	double anisotropy[3] = {0, 0, 1}; // Should be normalized
 	double anisotropyStrength = 0;
 	double anisotropyAxis = 0;
@@ -59,7 +61,7 @@ bool printInitialize = false;
 
 void setDerivatives(){
 	constants::nAtoms = constants::baseAtoms * (int)std::pow(constants::nUnitCells, constants::nDimensions);
-	constants::unitVectors = {{(double)constants::baseAtoms, 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
+	// constants::unitVectors = {{(double)constants::baseAtoms, 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
 
 	constants::length = 3 * constants::nAtoms;
 
