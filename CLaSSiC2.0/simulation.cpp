@@ -29,27 +29,42 @@ void Simulation::load()
 		4. Apply periodic boundary conditions
 	*/
 
-	// Create the basis atom
-	position.push_back(0); // x
-	position.push_back(0); // y
-	position.push_back(0); // z
+	// Create the basis
+	for (int i=0; i < constants::basisPosition.size(); i++){
+		for (int j = 0; j < 3; j++){
+			position.push_back(constants::basisPosition[i][j]);
+		}
+	}
+
 
 	// Add more unit cells
-	std::vector<double> basePosition;
+	int offset = 0;
 	for (int dim = 0; dim < constants::nDimensions; dim++)
 	{
-		basePosition = position;
 		for (int cell = 1; cell < constants::nUnitCells; cell++)
 		{
-			for (int i = 0; i < basePosition.size() / 3; i++)
+			if (constants::nDimensions>1){
+				if (((int)position.size() / 3)%(2*constants::nUnitCells)==0 && constants::unitVectors[1][0]!=0){
+					offset++;
+				}
+			}
+			std::cout <<  std::pow(constants::nUnitCells, dim) << std::endl;
+			for (int i = 0; i < std::pow(constants::nUnitCells, dim); i++)
 			{
-				for (int j = 0; j < 3; j++)
-				{
-					position.push_back(basePosition[3 * i + j] + cell * (constants::unitVectors[dim][j]));
+				// std::cout <<  constants::basisPosition.size() << std::endl;
+				for (int k=0; k<constants::basisPosition.size(); k++){
+					for (int j = 0; j < 3; j++)
+					{
+						// std::cout << "vec: "<<  constants::unitVectors[dim][j] << std::endl;
+						// position.push_back(position[3 * i * dim + j + 3*(k*(1+i))] + (constants::unitVectors[dim][j]) * cell-(constants::unitVectors[0][j])*offset);
+						position.push_back(position[3 * i + j]+constants::unitVectors[dim][j] * cell-(constants::unitVectors[0][j])*offset);
+						// std::cout << position.size()/3 << ": "<<position[3 * i * dim + j+3*k] << " | " <<  (constants::unitVectors[dim][j]) * cell << " | " << -(constants::unitVectors[0][j])*offset << std::endl;
+					}
 				}
 			}
 		}
 	}
+	std::cout << "positions complete!\n";
 
 	// Calculate nearest neighbours
 	double distance;
@@ -70,32 +85,61 @@ void Simulation::load()
 		}
 	}
 
+	std::cout << "nearest neighbours complete!\n";
 	// Periodic boundary conditions
+	//TODO find a pretty solution
 	bool applyBoundry = true;
-	for (int dim = 0; dim < constants::nDimensions; dim++)
-	{
+	if (constants::geometry==3){
 		for (int i = 0; i < constants::nAtoms; i++)
 		{
 			for (int j = 0; j < constants::nAtoms; j++)
 			{
 				if (i != j)
 				{
-					applyBoundry = true;
-					for (int k = 0; k < 3; k++)
+					applyBoundry = false;
+					if ((std::abs(position[3 * j] - position[3 * i])+0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[0][0] &&
+					std::abs(position[3 * j] - position[3 * i])-0.000001 <= (constants::nUnitCells) * constants::unitVectors[0][0])
+					&& ( std::abs(position[3 * j + 1]-position[3 * i + 1])-0.000001 <= constants::unitVectors[1][1])
+					)
 					{
-						if (constants::unitVectors[dim][k] != 0)
+						applyBoundry = true;
+					}
+					if ((std::abs(position[3 * j + 1] - position[3 * i + 1])+0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[1][1] &&
+					std::abs(position[3 * j]-position[3 * i])-0.000001 <= constants::unitVectors[1][0])
+					)
+					{
+						applyBoundry = true;
+					}
+					
+					if (i==0 && j==constants::nAtoms-1){
+						applyBoundry = true;
+					}
+					if (applyBoundry && std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end())
+					{
+						neighbours[i].push_back(j);
+						neighbours[j].push_back(i);
+					}
+				}
+			}
+		}
+	} else {
+		for (int i = 0; i < constants::nAtoms; i++)
+		{
+			for (int j = 0; j < constants::nAtoms; j++)
+			{
+				if (i != j)
+				{
+					applyBoundry = false;
+					if (std::abs(position[3 * j] - position[3 * i]) + 0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[0][0] &&
+					std::abs(position[3 * j+1]-position[3 * i+1]) - 0.000001 < constants::unitVectors[0][1])
+					{
+						applyBoundry = true;
+					}
+					if (constants::nDimensions > 1){
+						if (std::abs(position[3 * j+1]-position[3 * i+1]) + 0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[1][1] &&
+						std::abs(position[3 * j]-position[3 * i]) - 0.000001 <= constants::unitVectors[1][0])
 						{
-							if (position[3 * i + k] + constants::nUnitCells * constants::unitVectors[dim][k] - 1 != position[3 * j + k])
-							{
-								applyBoundry = false;
-							}
-						}
-						else
-						{
-							if (position[3 * i + k] != position[3 * j + k])
-							{
-								applyBoundry = false;
-							}
+							applyBoundry = true;
 						}
 					}
 
@@ -108,25 +152,27 @@ void Simulation::load()
 			}
 		}
 	}
+	std::cout << "periodic boundaries complete!\n";
 
 	// Printing
 
-	// std::cout << "Atom positions: \n";
-	// for (int i = 0; i < position.size() / 3; i++)
-	// {
-	// 	std::cout << "x: " << position[3 * i] << " y: " << position[3 * i + 1] << " z: " << position[3 * i + 2] << std::endl;
-	// }
+	std::cout << "Atom positions: \n";
+	for (int i = 0; i < position.size() / 3; i++)
+	{
+		std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1] << "}, ";
+	}
 
 
-	// std::cout << "Neighbours: \n";
-	// for (int i = 0; i < constants::nAtoms; i++)
-	// {
-	// 	for (int j = 0; j < neighbours[i].size(); j++)
-	// 	{
-	// 		std::cout << neighbours[i][j] << " ";
-	// 	}
-	// 	std::cout << std::endl;
-	// }
+	std::cout << "Neighbours: \n";
+	for (int i = 0; i < constants::nAtoms; i++)
+	{
+		std::cout << i << ": ";
+		for (int j = 0; j < neighbours[i].size(); j++)
+		{
+			std::cout << neighbours[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
 
 }
 
@@ -247,15 +293,22 @@ void Simulation::initialize()
 				spin[3 * i + 2] = swap * 1;
 		}
 		normalize();
-		break;
+	break;
+		case 7:
+		for (int i = 0; i < constants::nAtoms; i++){
+			spin[3*i] = std::sin(2*constants::pi*i/3);
+			spin[3*i+1] = std::cos(2*constants::pi*i/3);
+			spin[3*i+2] = 0;
+		}
+	break;
 	}
 	// Printing
 
-// 	std::cout << "Spin initialization: \n";
-// 	for (int i = 0; i < constants::nAtoms; i++)
-// 	{
-// 		std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
-// 	}
+	std::cout << "Spin initialization: \n";
+	for (int i = 0; i < constants::nAtoms; i++)
+	{
+		std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
+	}
 }
 
 void Simulation::run()
