@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <cmath>
 #include "simulation.hpp"
 #include "constants.hpp"
 
@@ -47,23 +48,46 @@ int main(int argc, char *argv[])
 		else if (std::string(argv[i]) == "-mode"){
 			constants::mode = std::stoi(argv[i+1]);
 		}
+		else if (std::string(argv[i]) == "-nCellsX"){
+			constants::nUnitCells = (int)std::stod(argv[i+1]);
+		}
 		else if (std::string(argv[i]) == "-structure"){
 			if (std::string(argv[i+1]) == "single"){
 				constants::nDimensions = 1;
+				constants::nUnitCells = 1;
+				constants::basisPosition = {{0., 0., 0.}};
+				constants::geometry = 0;
 			}
-			if (std::string(argv[i+1]) == "line"){
+			else if (std::string(argv[i+1]) == "line"){
 				constants::nDimensions = 1;
-				constants::unitVectors = {{1., 0., 0.}, {0., 0., 0.}, {0., 0., 0.}};
+				constants::unitVectors = {{1., 0., 0.}};
+				constants::basisPosition = {{0., 0., 0.}};
+				constants::geometry = 1;
 			}
 			else if (std::string(argv[i+1]) == "square") {
 				constants::nDimensions = 2;
-				constants::unitVectors = {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
-			} else {
-				std::cerr << "-structure only has the following options: single and square\n";
+				constants::unitVectors = {{1., 0., 0.}, {0., 1., 0.}};
+				constants::basisPosition = {{0., 0., 0.}};
+				constants::geometry = 2;
 			}
-		}
-		else if (std::string(argv[i]) == "-nCellsX"){
-			constants::nUnitCells = (int)std::stod(argv[i+1]);
+			else if (std::string(argv[i+1]) == "triangle") {
+				constants::nDimensions = 2;
+				constants::unitVectors = {{1., 0., 0.}, {std::cos(constants::pi/3.), std::sin(constants::pi/3.), 0.}};
+				constants::basisPosition = {{0., 0., 0.}};
+				constants::geometry = 3;
+				std::cout << "Unit vectors:\n";
+				std::cout << "a0: " << constants::unitVectors[0][0] << ", " << constants::unitVectors[0][1] << ", " << constants::unitVectors[0][2] << std::endl;
+				std::cout << "a1: " << constants::unitVectors[1][0] << ", " << constants::unitVectors[1][1] << ", " << constants::unitVectors[1][2] << std::endl;
+			} 
+			else if (std::string(argv[i+1]) == "kagome") {
+				constants::nDimensions = 2;
+				constants::unitVectors = {{2., 0., 0.}, {2. * std::cos(constants::pi/3.), 2. * std::sin(constants::pi/3.), 0.}};
+				constants::basisPosition = {{0., 0., 0.}, {1., 0., 0.}, {1. * std::cos(constants::pi/3.), 1. * std::sin(constants::pi/3.), 0.}};
+				constants::geometry = 4;
+			}
+			else {
+				std::cerr << "-structure only has the following options: single, line, square, triangle and kagome\n";
+			}
 		}
 
 		i++;
