@@ -17,28 +17,22 @@ print(f'z sum: {np.mean(np.sum(z[fNum],axis=0))}')
 if os.path.exists(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier0.dat"):
     os.remove(os.getcwd() + "\\CLaSSiC2.0\\data\\fourier0.dat")
 
-def getTransform(structure):
-    if structure == "line":
-        sideLength = int(param[fNum]["atoms"])
-        latticePosition = helper.positionLine(sideLength)
-        scatterLength = int(sideLength/2)
+def getTransform():
+    sideLength = param[fNum]["nUnitCells"]
+    latticePosition = helper.getPositions(fNum)
+    scatterLength = int(sideLength/2)
+    if param[fNum]["geometry"] == "line":
         qScatter = helper.scatterLine(scatterLength)
 
-    elif structure == "line2":
-        sideLength = int(param[fNum]["atoms"]/2)
-        latticePosition = helper.positionLine(sideLength)
-        scatterLength = int(sideLength/2) if param[fNum]["J"] >= 0 else int(sideLength/2)
-        qScatter = helper.scatterLine(scatterLength)
-
-    elif structure == "square":
-        sideLength = int(np.sqrt(param[fNum]["atoms"]))
-        latticePosition = helper.positionSquare(sideLength)
+    elif param[fNum]["geometry"] == "square":
         scatterLength = int(sideLength/2) if param[fNum]["J"] >= 0 else int(sideLength/4)
         qScatter = helper.scatterSquare(scatterLength)
 
-    elif structure == "triangle":
-        sideLength = int(np.sqrt(param[fNum]["atoms"]))
-        latticePosition = helper.positionTriangle(sideLength)
+    elif param[fNum]["geometry"] == "triangle":
+        scatterLength = int(sideLength/2) if param[fNum]["J"] >= 0 else int(sideLength/2)
+        qScatter = helper.scatterTriangle(scatterLength)
+    
+    elif param[fNum]["geometry"] == "kagome":
         scatterLength = int(sideLength/2) if param[fNum]["J"] >= 0 else int(sideLength/2)
         qScatter = helper.scatterTriangle(scatterLength)
 
@@ -66,10 +60,9 @@ def getTransform(structure):
     return I_total, nScatter, sideLength
 
 fig, ax = plt.subplots(2)
-point = 13
-structure = "triangle"
+point = 2
 while fNum < x.shape[0]:
-    I_total, nScatter, sideLength = getTransform(structure)
+    I_total, nScatter, sideLength = getTransform()
     xData = np.linspace(0,nScatter-1,nScatter)
     yData, zData = [], []
     maxF = np.log10(np.max(I_total))
@@ -80,7 +73,7 @@ while fNum < x.shape[0]:
     # ax[0].plot(xData,yData, helper.constants["colors"][fNum+1]+'o')
     # ax[0].plot(xData,yData3, helper.constants["colors"][fNum]+'o')
     print(xData.dtype, type(yData[0]), type(zData))
-    helper.plotTheory(structure, sideLength, param[fNum], ax[0], fNum)
+    helper.plotTheory(param[fNum]["geometry"], sideLength, param[fNum], ax[0], fNum)
     im = ax[0].scatter(xData,yData,c=zData,cmap="Wistia", zorder=10)
     fig.colorbar(im, ax=ax[0])
 
@@ -98,6 +91,6 @@ if param[fNum]["J"] > 0:
     ax[0].set_title('Ferromagnetic spin chain')
 else:
     ax[0].set_title('Antiferromagnetic spin chain')
-helper.plotMarker(structure, sideLength, ax[0])
+helper.plotMarker(param[fNum]["geometry"], sideLength, ax[0])
 
 plt.show()
