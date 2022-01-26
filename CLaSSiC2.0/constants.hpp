@@ -13,7 +13,6 @@ namespace constants
 
     // System constants
     extern double spinSize;
-    extern int baseAtoms;
     extern int nUnitCells;
     extern int nDimensions;
     extern int nAtoms;
@@ -40,7 +39,7 @@ namespace constants
     extern double temperature;
 
     // File constants
-    extern std::string inputFile;
+    extern std::string positionFile;
     extern std::string outputFile;
     extern double offset;
     extern double length;

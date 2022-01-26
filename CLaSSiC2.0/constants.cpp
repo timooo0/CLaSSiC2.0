@@ -15,7 +15,6 @@ namespace constants
 
 	// System constants
 	double spinSize = 3.5;
-	int baseAtoms = 1;
 	int nUnitCells = 8;
 	int nDimensions = 1;
 	int nAtoms;
@@ -42,9 +41,10 @@ namespace constants
 	double lambda = 0;
 
 	// File constants
-	std::string inputFile = "spin.csv";
+	std::string positionFile = "data/position.csv";
 	std::string outputFile = "data/data.dat";
-	double offset = 15; // offset, nAtoms, dt, steps. J, lambda, 3 magneticField, 3 anisotropy, temperature, length, anisotropyStrength
+	 // offset, nAtoms, dt, steps. J, lambda, 3 magneticField, 3 anisotropy, temperature, length, geometry, nUnitCells, anisotropyStrength
+	double offset = 17;
 	double length;
 
 	// Prefactors
@@ -60,7 +60,7 @@ bool printNeighbours = false;
 bool printInitialize = false;
 
 void setDerivatives(){
-	constants::nAtoms = constants::baseAtoms * (int)std::pow(constants::nUnitCells, constants::nDimensions);
+	constants::nAtoms = constants::basisPosition.size() * (int)std::pow(constants::nUnitCells, constants::nDimensions);
 	// constants::unitVectors = {{(double)constants::baseAtoms, 0., 0.}, {0., 1., 0.}, {0., 0., 0.}};
 
 	constants::length = 3 * constants::nAtoms;
