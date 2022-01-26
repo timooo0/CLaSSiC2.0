@@ -11,9 +11,13 @@ Simulation::Simulation()
 {
 	/*
 	Constructer for the simulation class.
+		- make sure the data directory exists
 		- Calls load to build the crystal
 		- Calls initialize to set to start orientation of the spins
 	*/
+	if (!std::filesystem::is_directory("data") || !std::filesystem::exists("data")) {
+    	std::filesystem::create_directory("data"); // create src folder
+	}
 
 	load();
 	initialize();
@@ -44,11 +48,12 @@ void Simulation::load()
 		for (int cell = 1; cell < constants::nUnitCells; cell++)
 		{
 			if (constants::nDimensions>1){
-				if (((int)position.size() / 3)%(2*constants::nUnitCells)==0 && constants::unitVectors[1][0]!=0){
+				if (position.size()%(3*constants::basisPosition.size()*2*constants::nUnitCells)==0 && constants::unitVectors[1][0]!=0){
 					offset++;
+					std::cout << "Position size: " << position.size()/3 << std::endl;
 				}
 			}
-			std::cout <<  std::pow(constants::nUnitCells, dim) << std::endl;
+			// std::cout <<  std::pow(constants::nUnitCells, dim) << std::endl;
 			for (int i = 0; i < std::pow(constants::nUnitCells, dim); i++)
 			{
 				// std::cout <<  constants::basisPosition.size() << std::endl;
@@ -57,13 +62,18 @@ void Simulation::load()
 					{
 						// std::cout << "vec: "<<  constants::unitVectors[dim][j] << std::endl;
 						// position.push_back(position[3 * i * dim + j + 3*(k*(1+i))] + (constants::unitVectors[dim][j]) * cell-(constants::unitVectors[0][j])*offset);
-						position.push_back(position[3 * i + j]+constants::unitVectors[dim][j] * cell-(constants::unitVectors[0][j])*offset);
-						// std::cout << position.size()/3 << ": "<<position[3 * i * dim + j+3*k] << " | " <<  (constants::unitVectors[dim][j]) * cell << " | " << -(constants::unitVectors[0][j])*offset << std::endl;
+						// std::cout << position.size()/3 << ": "<<position[3 * k + 3 * i + j] << " | " <<  (constants::unitVectors[dim][j]) * cell << " | " << -(constants::unitVectors[1][j])*offset << std::endl;
+						if (j==0){
+							position.push_back(position[3 * k + constants::basisPosition.size() * 3 * i + j]+constants::unitVectors[dim][j] * cell-(constants::unitVectors[0][j])*offset);
+						} else {
+							position.push_back(position[3 * k + constants::basisPosition.size() * 3 * i + j]+constants::unitVectors[dim][j] * cell);
+						}
 					}
 				}
 			}
 		}
 	}
+	writePositions();
 	std::cout << "positions complete!\n";
 
 	// Calculate nearest neighbours
@@ -87,7 +97,7 @@ void Simulation::load()
 
 	std::cout << "nearest neighbours complete!\n";
 	// Periodic boundary conditions
-	//TODO find a pretty solution
+	// TODO find a pretty solution
 	bool applyBoundry = true;
 	if (constants::geometry==3){
 		for (int i = 0; i < constants::nAtoms; i++)
@@ -122,7 +132,53 @@ void Simulation::load()
 				}
 			}
 		}
-	} else {
+	} 
+	else if (constants::geometry == 4) {
+		for (int i = 0; i < constants::nAtoms; i++)
+		{
+			for (int j = 0; j < constants::nAtoms; j++)
+			{
+				if (i != j)
+				{
+					applyBoundry = false;
+					if (i==1 && j==38) {
+						std::cout << "pos: " <<position[3 * i+1] << ", "<< position[3 * j+1] <<std::endl;
+						std::cout << "nn: " << std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::basisPosition[2][0])) <<
+						", " <<std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-(constants::nUnitCells * constants::unitVectors[1][1]-constants::basisPosition[2][1])) << std::endl;
+					}
+					// Horizontal boundary conditions
+					if ((std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0] - constants::basisPosition[2][0])) < 0.000001 &&
+					std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-constants::basisPosition[2][1]) < 0.000001) ||
+					std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0]- constants::basisPosition[1][0])) < 0.000001 &&
+					std::abs(position[3 * j + 1] - position[3 * i + 1]) < 0.000001)
+					{
+						applyBoundry = true;
+						std::cout << "horizontal succes: " << i << ", " << j << std::endl;
+					}
+					// Vertical boundary conditions
+					if (std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::basisPosition[2][0])) < 0.000001 &&
+					std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-(constants::nUnitCells * constants::unitVectors[1][1]-constants::basisPosition[2][1])) < 0.000001)
+					{
+						applyBoundry = true;
+						// std::cout << "vertical succes: " << i << ", " << j << std::endl;
+					}
+					// Corner boundary conditions
+					if (std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0] - constants::basisPosition[2][0])) < 0.000001 &&
+					std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-(constants::nUnitCells * constants::unitVectors[1][1]-constants::basisPosition[2][1])) < 0.000001)
+					{
+						applyBoundry = true;
+						// std::cout << "Corner succes: " << i << ", " << j << std::endl;
+					}
+					if (applyBoundry && std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end())
+					{
+						neighbours[i].push_back(j);
+						neighbours[j].push_back(i);
+					}
+				}
+			}
+		}
+	}
+	else {
 		for (int i = 0; i < constants::nAtoms; i++)
 		{
 			for (int j = 0; j < constants::nAtoms; j++)
@@ -166,7 +222,7 @@ void Simulation::load()
 	std::cout << "Neighbours: \n";
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
-		std::cout << i << ": ";
+		std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
 		for (int j = 0; j < neighbours[i].size(); j++)
 		{
 			std::cout << neighbours[i][j] << " ";
@@ -323,17 +379,8 @@ void Simulation::run()
 	*/
 
 	// Open and write to file
-	int i = 0;
 	std::ofstream file;
-	std::string dataFile = constants::outputFile;
-	dataFile.insert(dataFile.find("."), std::to_string(i));
-	while (std::filesystem::exists(dataFile))
-	{
-		i++;
-		dataFile = constants::outputFile;
-		dataFile.insert(dataFile.find("."), std::to_string(i));
-	}
-	file.open(dataFile, std::ios::binary);
+	file.open(addFileNumber(constants::outputFile), std::ios::binary);
 	writeConstants(file);
 
 	// Temperature fluctatuations
@@ -393,6 +440,21 @@ void Simulation::normalize()
 		spin[3 * i + 2] *= invLength;
 	}
 }
+std::string Simulation::addFileNumber(std::string input){
+	int i=0;
+
+	std::string fileString = input;
+	fileString.insert(input.find("."), std::to_string(i));
+	while (std::filesystem::exists(fileString))
+	{
+		i++;
+		fileString = constants::outputFile;
+		fileString.insert(input.find("."), std::to_string(i));
+	}
+
+	return fileString;
+}
+
 
 void Simulation::writeConstants(std::ofstream &f)
 {
@@ -401,6 +463,8 @@ void Simulation::writeConstants(std::ofstream &f)
 	*/
 	double saveAtoms = constants::nAtoms;
 	double saveSteps = constants::steps;
+	double saveGeometry = constants::geometry;
+	double saveNUnitcells = constants::nUnitCells;
 	f.write((char *)&constants::offset, sizeof(double));
 	f.write((char *)&saveAtoms, sizeof(double));
 	f.write((char *)&constants::dt, sizeof(double));
@@ -411,8 +475,27 @@ void Simulation::writeConstants(std::ofstream &f)
 	f.write((char *)&constants::anisotropy[0], 3 * sizeof(double));
 	f.write((char *)&constants::temperature, sizeof(double));
 	f.write((char *)&constants::length, sizeof(double));
+	f.write((char *)&saveGeometry, sizeof(double));
+	f.write((char *)&saveNUnitcells, sizeof(double));
 	f.write((char *)&constants::anisotropyStrength, sizeof(double));
 }
+
+void Simulation::writePositions()
+{
+
+	std::ofstream positionFile;
+	positionFile.open(addFileNumber(constants::positionFile));
+
+	std::string seperator;
+	for (int i=0; i < position.size();i++){
+		positionFile << position[i];
+		seperator = ((i+1)%3!=0) ? ", " : "\n";
+		positionFile << seperator;
+	}
+	positionFile << "\n";
+	positionFile.close();
+}
+
 
 std::vector<double>* Simulation::getSpin(){
 	return &spin;
