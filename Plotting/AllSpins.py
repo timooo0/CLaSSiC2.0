@@ -16,7 +16,7 @@ for i in range(rows):
         if rows > 1:
             ax[i][j].plot(time[:end],x[fNum, 3*i+j, :end], 'r')
             ax[i][j].plot(time[:end],y[fNum, 3*i+j, :end], 'b')
-            ax[j].plot(time[:end],z[fNum, 3*i+j, :end], 'g')
+            # ax[i][j].plot(time[:end],z[fNum, 3*i+j, :end], 'g')
         else:
             ax[j].plot(time[:end],x[fNum, 3*i+j, :end], 'r')
             ax[j].plot(time[:end],y[fNum, 3*i+j, :end], 'b')
