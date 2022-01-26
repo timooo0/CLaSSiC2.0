@@ -44,13 +44,42 @@ def getData():
             "magneticField" : data[6:9],
             "anisotropy" : data[9:12],
             "temperature" : data[12],
-            "length" : int(data[13]), 
-            "anisotropyStrength" : data[14]
+            "length" : int(data[13]),
+            "geometry" : int(data[14]),
+            "nUnitCells" : int(data[15]), 
+            "anisotropyStrength" : data[16]
         }
         param.append(parameters)
         x.append(np.reshape(data[param[i]["offset"]+0::3], (param[i]["steps"], param[i]["atoms"])).T)
         y.append(np.reshape(data[param[i]["offset"]+1::3], (param[i]["steps"], param[i]["atoms"])).T)
         z.append(np.reshape(data[param[i]["offset"]+2::3], (param[i]["steps"], param[i]["atoms"])).T)
+        
+        # data for the different geometries:
+        if parameters["geometry"] == 0:
+            parameters["geometry"] = "single"
+            parameters["nDimensions"] = 1
+            parameters["nUnitCells"] = 1
+            parameters["basisPosition"] = np.array([[0., 0., 0.]])
+        elif parameters["geometry"] == 1:
+            parameters["geometry"] = "line"
+            parameters["nDimensions"] = 1
+            parameters["basisPosition"] = np.array([[0., 0., 0.]])
+            parameters["unitVectors"] = np.array([[1., 0., 0.]])
+        elif parameters["geometry"] == 2:
+            parameters["geometry"] = "square"
+            parameters["nDimensions"] = 2
+            parameters["basisPosition"] = np.array([[0., 0., 0.]])
+            parameters["unitVectors"] = np.array([[1., 0., 0.], [0., 1., 0.]])
+        elif parameters["geometry"] == 3:
+            parameters["geometry"] = "triangle"
+            parameters["nDimensions"] = 2
+            parameters["basisPosition"] = np.array([[0., 0., 0.]])
+            parameters["unitVectors"] = np.array([[1., 0., 0.], [np.cos(np.pi/3.), np.sin(np.pi/3.), 0.]])
+        elif parameters["geometry"] == 4:
+            parameters["geometry"] = "kagome"
+            parameters["nDimensions"] = 2
+            parameters["basisPosition"] = np.array([[0., 0., 0.], [1., 0., 0.], [1. * np.cos(np.pi/3.), 1. * np.sin(np.pi/3.), 0.]])
+            parameters["unitVectors"] = np.array([[2., 0., 0.], [2. * np.cos(np.pi/3.), 2. * np.sin(np.pi/3.), 0.]])
 
         i += 1
         print(x[-1].shape)
@@ -61,6 +90,7 @@ def getData():
     x = np.stack(x, axis=0)
     y = np.stack(y, axis=0)
     z = np.stack(z, axis=0)
+
 
     return param, x, y, z
 
@@ -114,37 +144,11 @@ def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
         I_total[i, :] = I_aa[:maxEnergyIndex]
     return I_total
 
-def positionLine(size):
-    latticePosition = []
-    for i in range(size):
-        latticePosition.append([i, 0, 0])
-    latticePosition = np.array(latticePosition).reshape(size, 3)
+def getPositions(fileNumber):
+    positionBasePath = os.getcwd()+"\\CLaSSiC2.0\\data\\position.csv"
+    positions = np.loadtxt(positionBasePath[:-4] + str(fileNumber) + positionBasePath[-4:], delimiter=", ")
 
-    return latticePosition
-
-def positionSquare(size):
-    latticePosition = []
-    for i in range(size):
-        for j in range(size):
-            latticePosition.append([j, i, 0])
-    latticePosition = np.array(latticePosition).reshape(size**2, 3)
-
-    return latticePosition
-
-def positionTriangle(size):
-    latticePosition = []
-    offset = 0
-    for i in range(size):
-        for j in range(size):
-            if i%2==0:
-                offset = 0
-            else:
-                offset = 0.5
-
-            latticePosition.append([j+offset, 0.5*np.sqrt(3)*i, 0])
-    latticePosition = np.array(latticePosition).reshape(size**2, 3)
-
-    return latticePosition
+    return positions
 
 def scatterLine(size):
     q = np.array([0, 0, 0])
