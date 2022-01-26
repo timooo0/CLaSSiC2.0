@@ -16,7 +16,9 @@ public:
 	void initialize();
 	void run();
 	void normalize();
+	std::string addFileNumber(std::string input);
 	void writeConstants(std::ofstream &file);
+	void writePositions();
 
 	std::vector<double>* getSpin();
 	std::vector<double>* getPosition();
