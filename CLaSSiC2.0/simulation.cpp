@@ -212,23 +212,23 @@ void Simulation::load()
 
 	// Printing
 
-	std::cout << "Atom positions: \n";
-	for (int i = 0; i < position.size() / 3; i++)
-	{
-		std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1] << "}, ";
-	}
+	// std::cout << "Atom positions: \n";
+	// for (int i = 0; i < position.size() / 3; i++)
+	// {
+	// 	std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1] << "}, ";
+	// }
 
 
-	std::cout << "Neighbours: \n";
-	for (int i = 0; i < constants::nAtoms; i++)
-	{
-		std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
-		for (int j = 0; j < neighbours[i].size(); j++)
-		{
-			std::cout << neighbours[i][j] << " ";
-		}
-		std::cout << std::endl;
-	}
+	// std::cout << "Neighbours: \n";
+	// for (int i = 0; i < constants::nAtoms; i++)
+	// {
+	// 	std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
+	// 	for (int j = 0; j < neighbours[i].size(); j++)
+	// 	{
+	// 		std::cout << neighbours[i][j] << " ";
+	// 	}
+	// 	std::cout << std::endl;
+	// }
 
 }
 
@@ -448,10 +448,11 @@ std::string Simulation::addFileNumber(std::string input){
 	while (std::filesystem::exists(fileString))
 	{
 		i++;
-		fileString = constants::outputFile;
+		fileString = input;
 		fileString.insert(input.find("."), std::to_string(i));
 	}
 
+	std::cout << "filestring: " << fileString << std::endl;
 	return fileString;
 }
 
