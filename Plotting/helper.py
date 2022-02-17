@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pyfftw
-import cmath
+from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
 
@@ -82,7 +82,6 @@ def getData():
             parameters["unitVectors"] = np.array([[2., 0., 0.], [2. * np.cos(np.pi/3.), 2. * np.sin(np.pi/3.), 0.]])
 
         i += 1
-        print(x[-1].shape)
         path = basePath[:-4] + str(i) + basePath[-4:]
     if i==0:
         print("Could not open the file!")
@@ -142,15 +141,16 @@ def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
         #     plt.plot(energies[:], I_aa[:].real, label='real')
         #     plt.plot(energies[:], I_aa[:].imag, label='imag')
         I_total[i, :] = I_aa[:maxEnergyIndex]
-    return I_total
+    return I_total.real
 
-def getPositions(fileNumber):
+def getPositions(fileNumber=0):
     positionBasePath = os.getcwd()+"\\CLaSSiC2.0\\data\\position.csv"
     positions = np.loadtxt(positionBasePath[:-4] + str(fileNumber) + positionBasePath[-4:], delimiter=", ")
 
     return positions
 
 def scatterLine(size):
+    print(f'line lattice')
     q = np.array([0, 0, 0])
     q = reciprocalPath([-np.pi, 0, 0], [0, 0, 0], q, size)
     q = reciprocalPath([0, 0, 0], [np.pi, 0, 0], q, size)
@@ -158,6 +158,7 @@ def scatterLine(size):
     return q
 
 def scatterSquare(size):
+    print(f'square lattice')
     q = np.array([0, 0, 0])
     q = reciprocalPath([0,0,0], [np.pi, 0, 0], q, size)
     q = reciprocalPath([np.pi,0,0], [np.pi, np.pi, 0], q, size)
@@ -167,14 +168,25 @@ def scatterSquare(size):
     return q
 
 def scatterTriangle(size):
+    print(f'triangluar lattice')
     q = np.array([0, 0, 0])
-    print(f'triangluar lattice size: {size}')
     q = reciprocalPath([0,0,0], [np.pi, -1/np.sqrt(3)*np.pi, 0], q, size)
     q = reciprocalPath([np.pi,-1/np.sqrt(3)*np.pi,0], [np.pi, 0, 0], q, size)
     q = reciprocalPath([np.pi, 0, 0], [0,0,0], q, size)
     q = np.delete(q, 0, axis=0)
 
     return q
+
+def scatterKagome(size):
+    print(f'kagome lattice')
+    q = np.array([0, 0, 0])
+    q = reciprocalPath([0,0,0], [0.5*np.pi, 0.5*(-1/np.sqrt(3)*np.pi), 0], q, size)
+    q = reciprocalPath([0.5*np.pi,0.5*(-1/np.sqrt(3)*np.pi),0], [0.5*np.pi, 0, 0], q, size)
+    q = reciprocalPath([0.5*np.pi, 0, 0], [0,0,0], q, size)
+    q = np.delete(q, 0, axis=0)
+
+    return q
+
 def scatterAll(size):
     q = np.array([0, 0, 0])
     for i in range(size):
@@ -191,6 +203,17 @@ def reciprocalPath(start, end, q, size):
         q = np.vstack((q, np.array([start[0] + length[0]* i / size, start[1] + length[1]* i / size, start[2] + length[2]* i / size])))
     return q
 
+def plotPeaks(ax, xData, yData):
+    peaks, _ = find_peaks(yData, height=np.max(yData)/1000, distance=50)
+    ax.plot(xData[peaks], yData[peaks], "x")
+    # ax.plot(xData, 1*np.ones_like(xData), "--", color="gray")
+
+def plotSmooth(ax, xData, yData):
+    windowWidth = 100
+    cumsum_vec = np.cumsum(np.insert(yData, 0, 0)) 
+    ma_vec = (cumsum_vec[windowWidth:] - cumsum_vec[:-windowWidth]) / windowWidth
+    ax.plot(xData[int(windowWidth/2)-1:-int(windowWidth/2)+1], ma_vec, c='k')
+
 def plotMarker(structure, length, ax):
     length = int(length/2)
     if structure == "line":
@@ -203,6 +226,11 @@ def plotMarker(structure, length, ax):
         ax.set_xticks([0, length, 2*length, 3*length])
         ax.set_xticklabels([r'$\Gamma$',r'$M$',r'$R$',r'$\Gamma$'])
     elif structure == "triangle":
+        for i in range(4):
+            ax.axvline((i)*length)
+        ax.set_xticks([0, length, 2*length, 3*length])
+        ax.set_xticklabels([r'$\Gamma$',r'$K$',r'$M$',r'$\Gamma$'])
+    elif structure == "kagome":
         for i in range(4):
             ax.axvline((i)*length)
         ax.set_xticks([0, length, 2*length, 3*length])
@@ -227,19 +255,21 @@ def plotTheory(structure, length, param, ax, c):
                 ax.plot(xData, yData, constants["colors"][c], label=f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T', zorder=0)
                 yData = constants["J_to_meV"]*(np.sqrt(a1 + a2 + a3)+constants["gFactor"]*constants["bohrMagneton"]*param["magneticField"][-1])
 
-    if structure=="square":
+    elif structure=="square":
         q = scatterSquare(int(length/2))
         xData = np.linspace(0,int((q.shape[0]))-1, q.shape[0])
         if param["J"] > 0:
              yData = np.abs(constants["J_to_meV"]*(8*param["J"]*3.5*(1-0.5*(np.cos(q[:,0])+np.cos(q[:,1])))-constants["gFactor"]*constants["bohrMagneton"]*(param["magneticField"][-1]-param["anisotropyStrength"])))
 
-    if structure=="triangle":
+    elif structure=="triangle":
         xData = []
         yData = []
-    if param["magneticField"][-1] != 0:
-            labelText = f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T'
-    else:
-        labelText = f'Anis = {param["anisotropyStrength"]:.0f} T'
 
+    elif structure=="kagome":
+        xData = []
+        yData = []
+    
+    labelText = f'B = {param["magneticField"][-1]:.0f} T, Anis = {param["anisotropyStrength"]} T'
     ax.plot(xData, yData, constants["colors"][c], label=labelText)
+    
     
