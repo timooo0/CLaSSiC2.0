@@ -50,7 +50,7 @@ void Simulation::load()
 			if (constants::nDimensions>1){
 				if (position.size()%(3*constants::basisPosition.size()*2*constants::nUnitCells)==0 && constants::unitVectors[1][0]!=0){
 					offset++;
-					std::cout << "Position size: " << position.size()/3 << std::endl;
+					// std::cout << "Position size: " << position.size()/3 << std::endl;
 				}
 			}
 			// std::cout <<  std::pow(constants::nUnitCells, dim) << std::endl;
@@ -74,7 +74,7 @@ void Simulation::load()
 		}
 	}
 	writePositions();
-	std::cout << "positions complete!\n";
+	// std::cout << "positions complete!\n";
 
 	// Calculate nearest neighbours
 	double distance;
@@ -95,7 +95,7 @@ void Simulation::load()
 		}
 	}
 
-	std::cout << "nearest neighbours complete!\n";
+	// std::cout << "nearest neighbours complete!\n";
 	// Periodic boundary conditions
 	// TODO find a pretty solution
 	bool applyBoundry = true;
@@ -141,11 +141,6 @@ void Simulation::load()
 				if (i != j)
 				{
 					applyBoundry = false;
-					if (i==1 && j==38) {
-						std::cout << "pos: " <<position[3 * i+1] << ", "<< position[3 * j+1] <<std::endl;
-						std::cout << "nn: " << std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::basisPosition[2][0])) <<
-						", " <<std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-(constants::nUnitCells * constants::unitVectors[1][1]-constants::basisPosition[2][1])) << std::endl;
-					}
 					// Horizontal boundary conditions
 					if ((std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0] - constants::basisPosition[2][0])) < 0.000001 &&
 					std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-constants::basisPosition[2][1]) < 0.000001) ||
@@ -153,7 +148,7 @@ void Simulation::load()
 					std::abs(position[3 * j + 1] - position[3 * i + 1]) < 0.000001)
 					{
 						applyBoundry = true;
-						std::cout << "horizontal succes: " << i << ", " << j << std::endl;
+						// std::cout << "horizontal succes: " << i << ", " << j << std::endl;
 					}
 					// Vertical boundary conditions
 					if (std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::basisPosition[2][0])) < 0.000001 &&
@@ -208,7 +203,7 @@ void Simulation::load()
 			}
 		}
 	}
-	std::cout << "periodic boundaries complete!\n";
+	// std::cout << "periodic boundaries complete!\n";
 
 	// Printing
 
@@ -357,14 +352,21 @@ void Simulation::initialize()
 			spin[3*i+2] = 0;
 		}
 	break;
+		case 8:
+		for (double i = 0; i < constants::nAtoms; i++){
+			spin[3*i] = std::cos(constants::pi*7./6.+2./3.*constants::pi*i + i /constants::nAtoms * constants::mode * 2 * constants::pi);
+			spin[3*i+1] = std::sin(constants::pi*7./6.+2./3.*constants::pi*i + i /constants::nAtoms * constants::mode * 2 * constants::pi);
+			spin[3*i+2] = 0;
+		}
+	break;
 	}
 	// Printing
 
-	std::cout << "Spin initialization: \n";
-	for (int i = 0; i < constants::nAtoms; i++)
-	{
-		std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
-	}
+	// std::cout << "Spin initialization: \n";
+	// for (int i = 0; i < constants::nAtoms; i++)
+	// {
+	// 	std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
+	// }
 }
 
 void Simulation::run()
@@ -406,8 +408,6 @@ void Simulation::run()
 			}
 		}
 
-		integrator.integrate(neighbours, spin, randomField);
-		normalize();
 
 		if (i % 1000 == 0)
 		{
@@ -417,6 +417,8 @@ void Simulation::run()
 		{
 			file.write((char *)&spin[0], sizeof(double) * constants::nAtoms * 3);
 		}
+		integrator.integrate(neighbours, spin, randomField);
+		normalize();
 	}
 
 	// Wrap up
@@ -451,8 +453,6 @@ std::string Simulation::addFileNumber(std::string input){
 		fileString = input;
 		fileString.insert(input.find("."), std::to_string(i));
 	}
-
-	std::cout << "filestring: " << fileString << std::endl;
 	return fileString;
 }
 
