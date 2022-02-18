@@ -1,10 +1,15 @@
 from email.mime import base
-import os
+import os, sys
 import numpy as np
 import pyfftw
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
 
+# Windows uses backward slashes for file paths and the rest uses forward slashes
+if sys.platform=="win32":
+    slash = "\\"
+else:
+    slash = "/"
 
 constants = {
     "hbar" : 1.054571817e-34,
@@ -18,16 +23,16 @@ constants = {
 
     "colors" : ['b','g','r','c','m','y','b'],
 
-    "pathData" : "\\CLaSSiC2.0\\data\\data.dat",
-    "pathFourier" : "\\CLaSSiC2.0\\data\\fourier.dat",
-    "pathPosition" : "\\CLaSSiC2.0\\data\\position.csv",
+    "pathData" : slash+"CLaSSiC2.0"+slash+"data"+slash+"data.dat",
+    "pathFourier" : slash+"CLaSSiC2.0"+slash+"data"+slash+"fourier.dat",
+    "pathPosition" : slash+"CLaSSiC2.0"+slash+"data"+slash+"position.csv",
     }
 
 def getPath(subPath, i):
     path = os.getcwd()
     # Workout for calling the file from the plotting directory
-    if path[path.rfind("\\"):] != "\CLaSSiC2.0":
-        path = path[:path.rfind("\\")]
+    if path[path.rfind(slash):] != slash+"CLaSSiC2.0":
+        path = path[:path.rfind(slash)]
     path += subPath 
     return path[:-4] + str(i) + path[-4:]
 
@@ -90,7 +95,7 @@ def getData():
         i += 1
         path = getPath(constants["pathData"], i)
     if i==0:
-        print("Could not open the file!")
+        raise FileNotFoundError("Could not open the file!")
     
     x = np.stack(x, axis=0)
     y = np.stack(y, axis=0)
