@@ -13,12 +13,12 @@ energies = 4.1357e-12 * frequencies
 maxEnergyIndex = int(param[fNum]["steps"]//2+1)
 fourierLength = int(param[fNum]["steps"] / 2)
 
-# pathFourier = helper.getPath(helper.constants["pathFourier"], fNum)
-# while os.path.exists(pathFourier):
-#     os.remove(pathFourier)
-#     fNum += 1
-#     pathFourier = helper.getPath(helper.constants["pathFourier"], fNum)
-# fNum = 0
+pathFourier = helper.getPath(helper.constants["pathFourier"], fNum)
+while os.path.exists(pathFourier):
+    os.remove(pathFourier)
+    fNum += 1
+    pathFourier = helper.getPath(helper.constants["pathFourier"], fNum)
+fNum = 0
 
 def getTransform():
     sideLength = param[fNum]["nUnitCells"]
@@ -42,8 +42,7 @@ def getTransform():
     nScatter = qScatter.shape[0]
     print(f'nScatter: {qScatter.shape[0]}')
     pathFourier = helper.getPath(helper.constants["pathFourier"], fNum)
-    pathEnergyIndex = helper.getPath(helper.constants["pathEnergyIndex"], fNum)
-    if not os.path.exists(pathFourier) and not os.path.exists(pathEnergyIndex):
+    if not os.path.exists(pathFourier):
         print("Calculating")
         start = time.time()
         print("x: ")
@@ -64,8 +63,8 @@ def getTransform():
     return I_total, nScatter, sideLength
 
 fig, ax = plt.subplots(2)
-point = 24
-usePeaks = False
+point = 1
+usePeaks = True
 while fNum < x.shape[0]:
     I_total, nScatter, sideLength = getTransform()
     # xData = np.linspace(0,nScatter-1,nScatter)
@@ -101,7 +100,7 @@ while fNum < x.shape[0]:
     # ax[0].plot(xData,yData, helper.constants["colors"][fNum]+'o')
     helper.plotTheory(param[fNum]["geometry"], sideLength, param[fNum], ax[0], fNum)
     im = ax[0].scatter(xData,yData,c=zData,cmap="Wistia", zorder=10)
-    # fig.colorbar(im, ax=ax[0])
+    fig.colorbar(im, ax=ax[0])
 
     helper.plotPeaks(ax[1], energies[:maxEnergyIndex-1], I_total[point,:])
     ax[1].plot(energies[:maxEnergyIndex-1], I_total[point,:maxEnergyIndex-1], c= helper.constants["colors"][fNum])
