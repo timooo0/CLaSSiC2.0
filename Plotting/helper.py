@@ -1,3 +1,4 @@
+from email.mime import base
 import os
 import numpy as np
 import pyfftw
@@ -17,19 +18,24 @@ constants = {
 
     "colors" : ['b','g','r','c','m','y','b'],
 
-    "pathFourier" : os.getcwd() + "\\CLaSSiC2.0\\data\\fourier.dat",
-    "pathEnergyIndex" : os.getcwd() + "\\CLaSSiC2.0\\data\\energyIndex.dat"
-}
+    "pathData" : "\\CLaSSiC2.0\\data\\data.dat",
+    "pathFourier" : "\\CLaSSiC2.0\\data\\fourier.dat",
+    "pathPosition" : "\\CLaSSiC2.0\\data\\position.csv",
+    }
 
-def getPath(path, i):
+def getPath(subPath, i):
+    path = os.getcwd()
+    # Workout for calling the file from the plotting directory
+    if path[path.rfind("\\"):] != "\CLaSSiC2.0":
+        path = path[:path.rfind("\\")]
+    path += subPath 
     return path[:-4] + str(i) + path[-4:]
 
 def getData():
     param = []
     x, y, z = [], [], []
-    basePath = os.getcwd()+"\\CLaSSiC2.0\\data\\data.dat"
     i = 0
-    path = basePath[:-4] + str(i) + basePath[-4:]
+    path = getPath(constants["pathData"], i)
     print(path)
     while (os.path.exists(path)):
         data = np.fromfile(path, dtype=np.double)
@@ -82,7 +88,7 @@ def getData():
             parameters["unitVectors"] = np.array([[2., 0., 0.], [2. * np.cos(np.pi/3.), 2. * np.sin(np.pi/3.), 0.]])
 
         i += 1
-        path = basePath[:-4] + str(i) + basePath[-4:]
+        path = getPath(constants["pathData"], i)
     if i==0:
         print("Could not open the file!")
     
@@ -144,8 +150,7 @@ def runTransform(latticePosition, spin, q, size, maxEnergyIndex, param):
     return I_total.real
 
 def getPositions(fileNumber=0):
-    positionBasePath = os.getcwd()+"\\CLaSSiC2.0\\data\\position.csv"
-    positions = np.loadtxt(positionBasePath[:-4] + str(fileNumber) + positionBasePath[-4:], delimiter=", ")
+    positions = np.loadtxt(getPath(constants["pathPosition"], fileNumber), delimiter=", ")
 
     return positions
 
