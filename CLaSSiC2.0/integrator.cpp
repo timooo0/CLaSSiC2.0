@@ -1,5 +1,6 @@
 #include "integrator.hpp"
 #include <iostream>
+#include <cstring>
 
 void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbours, std::vector<double> &spin)
 {

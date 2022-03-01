@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <cstring>
 #include "constants.hpp"
 
 namespace constants
