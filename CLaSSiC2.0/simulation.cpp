@@ -237,6 +237,7 @@ void Simulation::initialize()
 
 	int swap = 1;
 	double delta = 1;
+	double iterAngle;
 	switch (constants::spinInit)
 	{
 	case 0:
@@ -348,18 +349,35 @@ void Simulation::initialize()
 		normalize();
 	break;
 		case 7:
+		// Kagome antiferromagnetic sqrt(3) x sqrt(3)
+		double offset;
 		for (int i = 0; i < constants::nAtoms; i++){
-			spin[3*i] = std::sin(2*constants::pi*i/3);
-			spin[3*i+1] = std::cos(2*constants::pi*i/3);
+			offset = 2./3.*constants::pi*(i/3/constants::nUnitCells%2);
+			iterAngle = 1./2.*constants::pi-2./3.*constants::pi*(i/3)+2./3.*constants::pi*i + offset;
+			spin[3*i] = std::cos(iterAngle);
+			spin[3*i+1] = std::sin(iterAngle);
+			// Pertubation
+			if (std::abs(spin[3*i]) > 1e-6){
+				if (spin[3*i] > 1e-6){
+					spin[3*i] += std::cos(-constants::angle+iterAngle)-std::cos(iterAngle);
+					spin[3*i+1] += std::sin(-constants::angle+iterAngle)-std::sin(iterAngle);
+				}
+				else {
+					spin[3*i] += std::cos(constants::angle+iterAngle)-std::cos(iterAngle);
+					spin[3*i+1] += std::sin(constants::angle+iterAngle)-std::sin(iterAngle);
+				}
 			spin[3*i+2] = 0;
+			}
 		}
 	break;
 		case 8:
-		double iterAngle;
+		// Kagome Q0
 		for (double i = 0; i < constants::nAtoms; i++){
 			iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
 			spin[3*i] = std::cos(iterAngle);
 			spin[3*i+1] = std::sin(iterAngle);
+
+			// Pertubation
 			if (std::abs(spin[3*i]) > 1e-6){
 				if (spin[3*i] > 1e-6){
 					spin[3*i] += std::cos(-constants::angle+iterAngle)-std::cos(iterAngle);
