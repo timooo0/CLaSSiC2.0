@@ -18,9 +18,9 @@ angle=45
 mode=2
 structure=line
 nCellsX=20
-
+periodicBoundary=true
 
 ./model -dt $dt -steps $steps -J $J -lambda $lambda -B $B \
 -anisotropyAxis $anisotropyAxis -anisotropyPlane $anisotropyPlane \
--T $T -init $init -angle $angle -mode $mode -nCellsX $nCellsX -structure $structure
+-T $T -init $init -angle $angle -mode $mode -nCellsX $nCellsX -structure $structure -periodicBoundary $periodicBoundary
 
