@@ -8,20 +8,24 @@ param, x, y, z = helper.getData()
 positions = helper.getPositions(fNum)
 # print(positions.shape)
 rescale = 0.5/np.max(x[fNum, 0, 0])
+rescale = 0.5
 
 fig = plt.figure()
 
 if param[fNum]["nDimensions"] == 1:
-    ax = plt.axes(xlim=(-1, param[fNum]["nUnitCells"]), ylim=(-(param[fNum]["nUnitCells"])/2, (param[fNum]["nUnitCells"])/2))
+    ax = plt.axes(xlim=(-1, param[fNum]["unitVectors"][0][0]*param[fNum]["nUnitCells"]), ylim=(-(param[fNum]["unitVectors"][1][1]*param[fNum]["nUnitCells"])/2, (param[fNum]["nUnitCells"])/2))
+    print("1D structure")
     ax.axis("equal")
 elif param[fNum]["nDimensions"] == 2:
-    ax = plt.axes(xlim=(-1, param[fNum]["nUnitCells"]), ylim=(-1, param[fNum]["nUnitCells"]))
-    ax.axis("equal")
+    ax = plt.axes()
+    ax.set_aspect("equal", "box")
+    ax.set_xlim(-1, param[fNum]["unitVectors"][0][0]*param[fNum]["nUnitCells"]+1)
+    ax.set_ylim(-1, param[fNum]["unitVectors"][1][1]*param[fNum]["nUnitCells"])
 
 
 lines = []
 for index in range(int(param[fNum]["atoms"])):
-    lobj = ax.plot([],[],"b-o", lw=2)[0]
+    lobj = ax.plot([],[],"b-o", lw=1.5, ms=1.5)[0]
     lines.append(lobj)
 
 def init():
