@@ -51,6 +51,13 @@ int main(int argc, char *argv[])
 		else if (std::string(argv[i]) == "-nCellsX"){
 			constants::nUnitCells = (int)std::stod(argv[i+1]);
 		}
+		else if (std::string(argv[i]) == "-applyBoundary") {
+			if (argv[i+1] == "false") {
+				constants::periodicBoundary == false;
+			} else {
+				constants::periodicBoundary == true;
+			}
+		}
 		else if (std::string(argv[i]) == "-structure"){
 			if (std::string(argv[i+1]) == "single"){
 				constants::nDimensions = 1;
