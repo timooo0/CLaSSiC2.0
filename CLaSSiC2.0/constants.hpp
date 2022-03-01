@@ -25,6 +25,7 @@ namespace constants
     extern double angle;
     extern int mode;
     extern double minDistance;
+    extern bool periodicBoundary;
 
     // Simulation parameters
     extern double dt;

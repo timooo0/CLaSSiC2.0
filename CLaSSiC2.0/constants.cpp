@@ -27,6 +27,7 @@ namespace constants
 	double angle = 0.25 * constants::pi;
 	int mode = 1;
 	double minDistance = 1.1;
+	bool periodicBoundary = true;
 
 	// Simulation parameters
 	double dt = 1e-15;
