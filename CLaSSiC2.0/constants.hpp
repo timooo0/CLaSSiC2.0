@@ -26,6 +26,7 @@ namespace constants
     extern int mode;
     extern double minDistance;
     extern bool periodicBoundary;
+    extern bool stabilize;
 
     // Simulation parameters
     extern double dt;
@@ -42,6 +43,7 @@ namespace constants
     // File constants
     extern std::string positionFile;
     extern std::string outputFile;
+    extern std::string energyFile;
     extern double offset;
     extern double length;
 

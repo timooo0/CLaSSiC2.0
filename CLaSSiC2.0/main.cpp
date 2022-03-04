@@ -52,10 +52,17 @@ int main(int argc, char *argv[])
 			constants::nUnitCells = (int)std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-applyBoundary") {
-			if (argv[i+1] == "false") {
-				constants::periodicBoundary == false;
+			if (std::string(argv[i+1]) == "false") {
+				constants::periodicBoundary = false;
 			} else {
-				constants::periodicBoundary == true;
+				constants::periodicBoundary = true;
+			}
+		}
+		else if (std::string(argv[i]) == "-stabilize"){
+			if (std::string(argv[i+1]) == "true") {
+				constants::stabilize = true;
+			} else {
+				constants::stabilize = false;
 			}
 		}
 		else if (std::string(argv[i]) == "-structure"){

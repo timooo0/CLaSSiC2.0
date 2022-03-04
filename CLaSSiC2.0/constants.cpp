@@ -28,6 +28,7 @@ namespace constants
 	int mode = 1;
 	double minDistance = 1.1;
 	bool periodicBoundary = true;
+	bool stabilize = false;
 
 	// Simulation parameters
 	double dt = 1e-15;
@@ -44,6 +45,8 @@ namespace constants
 	// File constants
 	std::string positionFile = "data/position.csv";
 	std::string outputFile = "data/data.dat";
+	std::string energyFile = "data/energy.dat";
+	
 	 // offset, nAtoms, dt, steps. J, lambda, 3 magneticField, 3 anisotropy, temperature, length, geometry, nUnitCells, anisotropyStrength
 	double offset = 17;
 	double length;

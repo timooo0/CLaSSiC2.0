@@ -8,6 +8,7 @@ private:
 	std::vector<double> position;
 	std::vector<double> randomField = std::vector<double>(constants::nAtoms * 3, 0);
 	std::vector<std::vector<int>> neighbours = std::vector<std::vector<int>>(constants::nAtoms, std::vector<int>());
+	std::vector<double> totalEnergy = std::vector<double>((int)constants::steps/100);
 	Integrator integrator;
 
 public:

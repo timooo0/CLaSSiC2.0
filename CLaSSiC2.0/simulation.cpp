@@ -413,10 +413,10 @@ void Simulation::run()
 	*/
 
 	// Open and write to file
-	std::ofstream file;
-	file.open(addFileNumber(constants::outputFile), std::ios::binary);
-	writeConstants(file);
-
+	std::ofstream fileSpin;
+	std::ofstream fileEnergy;
+	fileSpin.open(addFileNumber(constants::outputFile), std::ios::binary);
+	writeConstants(fileSpin);
 	// Temperature fluctatuations
 	std::random_device seed;
 	std::default_random_engine engine{seed()};
@@ -447,14 +447,19 @@ void Simulation::run()
 		}
 		if (i % 100 == 0)
 		{
-			file.write((char *)&spin[0], sizeof(double) * constants::nAtoms * 3);
+			fileSpin.write((char *)&spin[0], sizeof(double) * constants::nAtoms * 3);
+			totalEnergy[i/100]=integrator.calculateEnergy(spin);
 		}
 		integrator.integrate(neighbours, spin, randomField);
 		normalize();
 	}
 
 	// Wrap up
-	file.close();
+	fileSpin.close();
+	fileEnergy.open(addFileNumber(constants::energyFile), std::ios::binary);
+	std::cout << "size: " << (int)constants::steps/100 << std::endl;
+	fileEnergy.write((char *) &totalEnergy, sizeof(double)*((int)constants::steps/100));
+	fileEnergy.close();
 	auto msInt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
 	std::cout << "\nDuration: " << (float)msInt.count() / 1000 << "seconds\n"
 			  << std::endl;

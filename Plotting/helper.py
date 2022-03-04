@@ -26,6 +26,7 @@ constants = {
     "pathData" : slash+"CLaSSiC2.0"+slash+"data"+slash+"data.dat",
     "pathFourier" : slash+"CLaSSiC2.0"+slash+"data"+slash+"fourier.dat",
     "pathPosition" : slash+"CLaSSiC2.0"+slash+"data"+slash+"position.csv",
+    "pathEnergy" : slash+"CLaSSiC2.0"+slash+"data"+slash+"energy.dat",
     }
 
 def getPath(subPath, i):
@@ -158,6 +159,10 @@ def getPositions(fileNumber=0):
     positions = np.loadtxt(getPath(constants["pathPosition"], fileNumber), delimiter=", ")
 
     return positions
+
+def getEnergy(fileNumber=0):
+    energy = np.fromfile(getPath(constants["pathEnergy"], fileNumber), dtype=np.double)
+    return energy
 
 def scatterLine(size):
     print(f'line lattice')

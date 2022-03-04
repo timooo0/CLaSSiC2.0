@@ -1,5 +1,6 @@
 #include "integrator.hpp"
 #include <iostream>
+#include <cmath>
 
 void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbours, std::vector<double> &spin)
 {
@@ -9,18 +10,15 @@ void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbou
 	double jx;
 	double jy;
 	double jz;
+	double iterAngle;
+
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
 		// External field
 		memcpy(&effectiveField[3 * i], &constants::magneticField, sizeof(constants::magneticField)); // set to external field
 
 		// Anisotropy
-		// effectiveField[3 * i] -= dotProduct(&constants::anisotropyMatrix[0], &spin[3 * i]);
-		// effectiveField[3 * i + 1] -= dotProduct(&constants::anisotropyMatrix[3], &spin[3 * i]);
-		// effectiveField[3 * i + 2] -= dotProduct(&constants::anisotropyMatrix[6], &spin[3 * i]);
-		// effectiveField[3 * i] -= constants::anisotropyPlane * spin[3 * i];
 		effectiveField[3 * i + 2] += constants::anisotropyAxis * spin[3 * i + 2];
-
 		effectiveField[3 * i + 2] -= constants::anisotropyPlane * spin[3 * i + 2];
 
 		jx = 0;
@@ -36,6 +34,13 @@ void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbou
 		effectiveField[3 * i]     += constants::exchangePrefactor * jx;	 // x
 		effectiveField[3 * i + 1] += constants::exchangePrefactor * jy; // y
 		effectiveField[3 * i + 2] += constants::exchangePrefactor * jz; // z
+
+		//Stabilizer for kagome lattice by adding anisotropy (1 T) alligned with GS
+		if (constants::geometry==4 && constants::stabilize){
+			iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
+			effectiveField[3*i] += std::cos(iterAngle);
+			effectiveField[3*i+1] += std::sin(iterAngle);
+		}
 	}
 }
 
@@ -94,6 +99,13 @@ void Integrator::integrate(std::vector<std::vector<int>> &neighbours, std::vecto
 	}
 }
 
+double Integrator::calculateEnergy(std::vector<double> &spin){
+	double totalEnergy = 0;
+	for (int i=0;i<3*constants::nAtoms;i++){
+		totalEnergy += spin[i] * effectiveField[i]; 
+	}
+	return -constants::gFactor*constants::bohrMagneton*totalEnergy;
+}
 double Integrator::dotProduct(const double a[3], double b[3])
 {
 	double result = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];

@@ -1,4 +1,4 @@
-	#include "constants.hpp"
+#include "constants.hpp"
 #include <vector>
 
 class Integrator
@@ -13,6 +13,7 @@ public:
 	void calculateEffectiveField(std::vector<std::vector<int>> &neighbours, std::vector<double> &spin);
 	void evaluate(std::vector<std::vector<int>> &neighbours, std::vector<double> &spin);
 	void integrate(std::vector<std::vector<int>> &neighbours, std::vector<double> &spin, std::vector<double> &randomField);
+	double calculateEnergy(std::vector<double> &spin);
 	double dotProduct(const double a[3], double b[3]);
 
 	std::vector<double>* getEffectiveField();
