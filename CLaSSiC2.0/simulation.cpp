@@ -417,6 +417,7 @@ void Simulation::run()
 	std::ofstream fileEnergy;
 	fileSpin.open(addFileNumber(constants::outputFile), std::ios::binary);
 	writeConstants(fileSpin);
+
 	// Temperature fluctatuations
 	std::random_device seed;
 	std::default_random_engine engine{seed()};
@@ -424,6 +425,11 @@ void Simulation::run()
 	if (constants::temperatureSigma != 0 && constants::temperature != 0)
 	{
 		temperatureDistribution = std::normal_distribution<double>(0, constants::temperatureSigma);
+	}
+
+	//Set the stabilizerField
+	if (constants::geometry==4 && constants::stabilize){
+		integrator.setStabilizerField();
 	}
 
 	// Stopwatch
@@ -457,8 +463,7 @@ void Simulation::run()
 	// Wrap up
 	fileSpin.close();
 	fileEnergy.open(addFileNumber(constants::energyFile), std::ios::binary);
-	std::cout << "size: " << (int)constants::steps/100 << std::endl;
-	fileEnergy.write((char *) &totalEnergy, sizeof(double)*((int)constants::steps/100));
+	fileEnergy.write((char *) &totalEnergy[0], sizeof(double)*((int)constants::steps/100));
 	fileEnergy.close();
 	auto msInt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
 	std::cout << "\nDuration: " << (float)msInt.count() / 1000 << "seconds\n"
