@@ -10,7 +10,6 @@ void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbou
 	double jx;
 	double jy;
 	double jz;
-	double iterAngle;
 
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
@@ -37,9 +36,8 @@ void Integrator::calculateEffectiveField(std::vector<std::vector<int>> &neighbou
 
 		//Stabilizer for kagome lattice by adding anisotropy (1 T) alligned with GS
 		if (constants::geometry==4 && constants::stabilize){
-			iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
-			effectiveField[3*i] += std::cos(iterAngle);
-			effectiveField[3*i+1] += std::sin(iterAngle);
+			effectiveField[3*i] += stabilizerField[3*i];
+			effectiveField[3*i+1] += stabilizerField[3*i+1];
 		}
 	}
 }
@@ -115,3 +113,27 @@ double Integrator::dotProduct(const double a[3], double b[3])
 std::vector<double>* Integrator::getEffectiveField(){
 	return &effectiveField;
 };
+void Integrator::setStabilizerField(){
+	double iterAngle;
+	switch (constants::spinInit) {
+		case 7: 
+			for (int i = 0; i < constants::nAtoms; i++){
+				iterAngle = 1./2.*constants::pi-2./3.*constants::pi*(i/3)+2./3.*constants::pi*i;
+				stabilizerField[3*i] = std::cos(iterAngle);
+				stabilizerField[3*i+1] = std::sin(iterAngle);
+				stabilizerField[3*i+2] = 0;
+			}
+			break;
+		case 8:
+			for (double i = 0; i < constants::nAtoms; i++){
+			iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
+			stabilizerField[3*i] = std::cos(iterAngle);
+			stabilizerField[3*i+1] = std::sin(iterAngle);
+			stabilizerField[3*i+2] = 0;
+		}
+	}
+	for (int i=0;i<9;i++){
+		std::cout << stabilizerField[3*i] << ", " << stabilizerField[3*i+1] << std::endl;
+	}
+
+}
