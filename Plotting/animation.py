@@ -5,15 +5,19 @@ from matplotlib import animation
 
 fNum  = 0
 param, x, y, z = helper.getData()
+end = int(2e2)
+
+y = y[:,:,-end:]
+x = x[:,:,-end:]
 positions = helper.getPositions(fNum)
 # print(positions.shape)
-rescale = 0.5/np.max(x[fNum, 0, 0])
+# rescale = 0.5/np.max(x[fNum, 0, 0])
 rescale = 0.5
 
 fig = plt.figure()
 
 if param[fNum]["nDimensions"] == 1:
-    ax = plt.axes(xlim=(-1, param[fNum]["unitVectors"][0][0]*param[fNum]["nUnitCells"]), ylim=(-(param[fNum]["unitVectors"][1][1]*param[fNum]["nUnitCells"])/2, (param[fNum]["nUnitCells"])/2))
+    ax = plt.axes(xlim=(-1, param[fNum]["unitVectors"][0][0]*param[fNum]["nUnitCells"]), ylim=(-(param[fNum]["unitVectors"][0][0]*param[fNum]["nUnitCells"])/2, (param[fNum]["nUnitCells"])/2))
     print("1D structure")
     ax.axis("equal")
 elif param[fNum]["nDimensions"] == 2:
@@ -25,7 +29,7 @@ elif param[fNum]["nDimensions"] == 2:
 
 lines = []
 for index in range(int(param[fNum]["atoms"])):
-    lobj = ax.plot([],[],"b-o", lw=1.5, ms=1.5)[0]
+    lobj = ax.plot([],[],"b-o", lw=1.5, ms=2)[0]
     lines.append(lobj)
 
 def init():
@@ -41,5 +45,5 @@ def animate(i):
 
 ani = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=range(0, x.shape[2], 1), interval=10, blit=True)
-# ani.save('matplot003.gif', writer='pillow')
+# ani.save('animation.gif', writer='pillow')
 plt.show()
