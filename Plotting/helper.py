@@ -161,7 +161,7 @@ def getPositions(fileNumber=0):
     return positions
 
 def getEnergy(fileNumber=0):
-    energy = np.fromfile(getPath(constants["pathEnergy"], fileNumber), dtype=np.double)
+    energy = constants["J_to_meV"]*np.fromfile(getPath(constants["pathEnergy"], fileNumber), dtype=np.double)
     return energy
 
 def scatterLine(size):
