@@ -24,6 +24,7 @@ namespace constants
     extern int geometry;
     extern double angle;
     extern int mode;
+    extern int nNeighbours;
     extern double minDistance;
     extern bool periodicBoundary;
     extern bool stabilize;

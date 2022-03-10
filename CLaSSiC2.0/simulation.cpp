@@ -77,17 +77,13 @@ void Simulation::load()
 	// std::cout << "positions complete!\n";
 
 	// Calculate nearest neighbours
-	double distance;
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
 		for (int j = 0; j < constants::nAtoms; j++)
 		{
 			if (i != j)
 			{
-				distance = std::sqrt((position[3 * i] - position[3 * j]) * (position[3 * i] - position[3 * j]) +
-									 (position[3 * i + 1] - position[3 * j + 1]) * (position[3 * i + 1] - position[3 * j + 1]) +
-									 (position[3 * i + 2] - position[3 * j + 2]) * (position[3 * i + 2] - position[3 * j + 2]));
-				if (distance < constants::minDistance)
+				if (distance(position.begin()+3*i,position.begin()+3*j) < constants::minDistance)
 				{
 					neighbours[i].push_back(j);
 				}
@@ -97,113 +93,65 @@ void Simulation::load()
 
 	// std::cout << "nearest neighbours complete!\n";
 	// Periodic boundary conditions
-	// TODO find a pretty solution
 	bool applyBoundry = true;
 	if (constants::periodicBoundary){
-		if (constants::geometry==3){
-			for (int i = 0; i < constants::nAtoms; i++)
+		for (int i = 0; i < constants::nAtoms; i++)
+		{ 
+			if (neighbours[i].size()!=constants::nNeighbours)
 			{
-				for (int j = 0; j < constants::nAtoms; j++)
-				{
-					if (i != j)
-					{
-						applyBoundry = false;
-						if ((std::abs(position[3 * j] - position[3 * i])+0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[0][0] &&
-						std::abs(position[3 * j] - position[3 * i])-0.000001 <= (constants::nUnitCells) * constants::unitVectors[0][0])
-						&& ( std::abs(position[3 * j + 1]-position[3 * i + 1])-0.000001 <= constants::unitVectors[1][1])
-						)
-						{
-							applyBoundry = true;
-						}
-						if ((std::abs(position[3 * j + 1] - position[3 * i + 1])+0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[1][1] &&
-						std::abs(position[3 * j]-position[3 * i])-0.000001 <= constants::unitVectors[1][0])
-						)
-						{
-							applyBoundry = true;
-						}
-						
-						if (i==0 && j==constants::nAtoms-1){
-							applyBoundry = true;
-						}
-						if (applyBoundry && std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end())
-						{
-							neighbours[i].push_back(j);
-							neighbours[j].push_back(i);
-						}
+				std::vector<double> horizontalBoundary = std::vector<double>(3);
+				std::vector<double> verticalBoundary = std::vector<double>(3);
+				std::vector<double> diagonalBoundary = std::vector<double>(3);
+
+				horizontalBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
+				horizontalBoundary[1] = position[3*i+1];
+				horizontalBoundary[2] = position[3*i+2];
+
+				if (constants::nDimensions > 1){
+					verticalBoundary[0] = position[3*i];
+					verticalBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
+					verticalBoundary[2] = position[3*i+2];
+
+					if (i==0){
+					diagonalBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
+					diagonalBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
+					diagonalBoundary[2] = position[3*i+2];	
 					}
 				}
-			}
-		} 
-		else if (constants::geometry == 4) {
-			for (int i = 0; i < constants::nAtoms; i++)
-			{
+
+
 				for (int j = 0; j < constants::nAtoms; j++)
 				{
-					if (i != j)
-					{
-						applyBoundry = false;
+					if (i!=j){
 						// Horizontal boundary conditions
-						if ((std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0] - constants::basisPosition[2][0])) < 0.000001 &&
-						std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-constants::basisPosition[2][1]) < 0.000001) ||
-						std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0]- constants::basisPosition[1][0])) < 0.000001 &&
-						std::abs(position[3 * j + 1] - position[3 * i + 1]) < 0.000001)
-						{
-							applyBoundry = true;
-							// std::cout << "horizontal succes: " << i << ", " << j << std::endl;
-						}
-						// Vertical boundary conditions
-						if (std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::basisPosition[2][0])) < 0.000001 &&
-						std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-(constants::nUnitCells * constants::unitVectors[1][1]-constants::basisPosition[2][1])) < 0.000001)
-						{
-							applyBoundry = true;
-							// std::cout << "vertical succes: " << i << ", " << j << std::endl;
-						}
-						// Corner boundary conditions
-						if (std::abs(std::abs(position[3 * j] - position[3 * i])-(constants::nUnitCells * constants::unitVectors[0][0] - constants::basisPosition[2][0])) < 0.000001 &&
-						std::abs(std::abs(position[3 * j + 1] - position[3 * i + 1])-(constants::nUnitCells * constants::unitVectors[1][1]-constants::basisPosition[2][1])) < 0.000001)
-						{
-							applyBoundry = true;
-							// std::cout << "Corner succes: " << i << ", " << j << std::endl;
-						}
-						if (applyBoundry && std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end())
-						{
-							neighbours[i].push_back(j);
-							neighbours[j].push_back(i);
-						}
-					}
-				}
-			}
-		}
-		else {
-			for (int i = 0; i < constants::nAtoms; i++)
-			{
-				for (int j = 0; j < constants::nAtoms; j++)
-				{
-					if (i != j)
-					{
-						applyBoundry = false;
-						if (std::abs(position[3 * j] - position[3 * i]) + 0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[0][0] &&
-						std::abs(position[3 * j+1]-position[3 * i+1]) - 0.000001 < constants::unitVectors[0][1])
-						{
-							applyBoundry = true;
-						}
-						if (constants::nDimensions > 1){
-							if (std::abs(position[3 * j+1]-position[3 * i+1]) + 0.000001 >= (constants::nUnitCells - 1) * constants::unitVectors[1][1] &&
-							std::abs(position[3 * j]-position[3 * i]) - 0.000001 <= constants::unitVectors[1][0])
-							{
-								applyBoundry = true;
+						if (distance(horizontalBoundary.begin(), position.begin()+3*j) < constants::minDistance) {
+							if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
+								neighbours[i].push_back(j);
+								neighbours[j].push_back(i);
 							}
 						}
-
-						if (applyBoundry && std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end())
-						{
-							neighbours[i].push_back(j);
-							neighbours[j].push_back(i);
+						// Vertical boundary conditions
+						if (constants::nDimensions > 1){
+							if (distance(verticalBoundary.begin(), position.begin()+3*j) < constants::minDistance) {
+								if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
+									neighbours[i].push_back(j);
+									neighbours[j].push_back(i);
+								}
+							}
+							// Connecting over the diagonal
+							if (i==0){
+								if (distance(diagonalBoundary.begin(), position.begin()+3*j) < constants::minDistance) {
+									if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
+										neighbours[i].push_back(j);
+										neighbours[j].push_back(i);
+								}
+							}
+							}
 						}
 					}
 				}
-			}
-		}
+			}	
+		}	
 	}
 	// std::cout << "periodic boundaries complete!\n";
 
@@ -539,6 +487,13 @@ void Simulation::writePositions()
 	positionFile.close();
 }
 
+double Simulation::distance(std::vector<double>::iterator a, std::vector<double>::iterator b){
+	double distance;
+	distance = std::sqrt((*a-*b)*(*a-*b)
+						+(*(a+1)-*(b+1))*(*(a+1)-*(b+1))
+						+(*(a+2)-*(b+2))*(*(a+2)-*(b+2)));
+	return distance;
+}
 
 std::vector<double>* Simulation::getSpin(){
 	return &spin;

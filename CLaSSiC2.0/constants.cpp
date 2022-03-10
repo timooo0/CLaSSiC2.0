@@ -18,6 +18,7 @@ namespace constants
 	int nUnitCells = 8;
 	int nDimensions = 1;
 	int nAtoms;
+	int nNeighbours;
 	std::vector<std::vector<double>> unitVectors = {{1., 0., 0.}};
 	std::vector<std::vector<double>> basisPosition = {{0., 0., 0.}};
 

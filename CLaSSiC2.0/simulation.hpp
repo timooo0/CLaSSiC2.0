@@ -20,6 +20,7 @@ public:
 	std::string addFileNumber(std::string input);
 	void writeConstants(std::ofstream &file);
 	void writePositions();
+	double distance(std::vector<double>::iterator a, std::vector<double>::iterator b);
 
 	std::vector<double>* getSpin();
 	std::vector<double>* getPosition();
