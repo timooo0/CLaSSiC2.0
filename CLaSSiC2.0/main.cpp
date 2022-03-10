@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
 		else if (std::string(argv[i]) == "-nCellsX"){
 			constants::nUnitCells = (int)std::stod(argv[i+1]);
 		}
-		else if (std::string(argv[i]) == "-applyBoundary") {
+		else if (std::string(argv[i]) == "-periodicBoundary") {
 			if (std::string(argv[i+1]) == "false") {
 				constants::periodicBoundary = false;
 			} else {
@@ -70,24 +70,28 @@ int main(int argc, char *argv[])
 		else if (std::string(argv[i]) == "-structure"){
 			if (std::string(argv[i+1]) == "single"){
 				constants::nDimensions = 1;
+				constants::nNeighbours = 2;
 				constants::nUnitCells = 1;
 				constants::basisPosition = {{0., 0., 0.}};
 				constants::geometry = 0;
 			}
 			else if (std::string(argv[i+1]) == "line"){
 				constants::nDimensions = 1;
+				constants::nNeighbours = 2;
 				constants::unitVectors = {{1., 0., 0.}};
 				constants::basisPosition = {{0., 0., 0.}};
 				constants::geometry = 1;
 			}
 			else if (std::string(argv[i+1]) == "square") {
 				constants::nDimensions = 2;
+				constants::nNeighbours = 4;
 				constants::unitVectors = {{1., 0., 0.}, {0., 1., 0.}};
 				constants::basisPosition = {{0., 0., 0.}};
 				constants::geometry = 2;
 			}
 			else if (std::string(argv[i+1]) == "triangle") {
 				constants::nDimensions = 2;
+				constants::nNeighbours = 6;
 				constants::unitVectors = {{1., 0., 0.}, {std::cos(constants::pi/3.), std::sin(constants::pi/3.), 0.}};
 				constants::basisPosition = {{0., 0., 0.}};
 				constants::geometry = 3;
@@ -97,12 +101,21 @@ int main(int argc, char *argv[])
 			} 
 			else if (std::string(argv[i+1]) == "kagome") {
 				constants::nDimensions = 2;
+				constants::nNeighbours = 4;
 				constants::unitVectors = {{2., 0., 0.}, {2. * std::cos(constants::pi/3.), 2. * std::sin(constants::pi/3.), 0.}};
 				constants::basisPosition = {{0., 0., 0.}, {1., 0., 0.}, {1. * std::cos(constants::pi/3.), 1. * std::sin(constants::pi/3.), 0.}};
 				constants::geometry = 4;
 			}
+
+			else if (std::string(argv[i+1])== "hexagonal") {
+				constants::nDimensions = 2;
+				constants::nNeighbours = 3;
+				constants::unitVectors = {{std::sqrt(3), 0, 0.}, {std::sqrt(3)*std::cos(constants::pi/3.), std::sqrt(3)*std::sin(constants::pi/3.), 0.}};
+				constants::basisPosition = {{0., 0., 0.}, {std::cos(constants::pi/6.), -std::sin(constants::pi/6.), 0.}};
+				constants::geometry = 5;
+			}
 			else {
-				std::cerr << "-structure only has the following options: single, line, square, triangle and kagome\n";
+				std::cerr << "-structure only has the following options: single, line, square, triangle, kagome and hexagonal\n";
 			}
 		}
 
