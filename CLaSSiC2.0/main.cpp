@@ -110,12 +110,20 @@ int main(int argc, char *argv[])
 			else if (std::string(argv[i+1])== "hexagonal") {
 				constants::nDimensions = 2;
 				constants::nNeighbours = 3;
-				constants::unitVectors = {{std::sqrt(3), 0, 0.}, {std::sqrt(3)*std::cos(constants::pi/3.), std::sqrt(3)*std::sin(constants::pi/3.), 0.}};
+				constants::unitVectors = {{std::sqrt(3), 0., 0.}, {std::sqrt(3)*std::cos(constants::pi/3.), std::sqrt(3)*std::sin(constants::pi/3.), 0.}};
 				constants::basisPosition = {{0., 0., 0.}, {std::cos(constants::pi/6.), -std::sin(constants::pi/6.), 0.}};
 				constants::geometry = 5;
 			}
+
+			else if (std::string(argv[i+1])== "cubic") {
+				constants::nDimensions = 3;
+				constants::nNeighbours = 6;
+				constants::unitVectors = {{1., 0., 0.}, {0., 1., 0.}, {0., 0., 1.}};
+				constants::basisPosition = {{0., 0., 0.}};
+				constants::geometry = 6;
+			}
 			else {
-				std::cerr << "-structure only has the following options: single, line, square, triangle, kagome and hexagonal\n";
+				std::cerr << "-structure only has the following options: single, line, square, triangle, kagome, hexagonal, cubic\n";
 			}
 		}
 
