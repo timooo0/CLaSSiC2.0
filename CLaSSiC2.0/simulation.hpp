@@ -21,6 +21,7 @@ public:
 	void writeConstants(std::ofstream &file);
 	void writePositions();
 	double distance(std::vector<double>::iterator a, std::vector<double>::iterator b);
+	void addNeighbours(std::vector<double> a, std::vector<double> b, int i, int j);
 
 	std::vector<double>* getSpin();
 	std::vector<double>* getPosition();

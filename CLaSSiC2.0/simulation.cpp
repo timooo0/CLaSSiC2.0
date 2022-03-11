@@ -99,54 +99,50 @@ void Simulation::load()
 		{ 
 			if (neighbours[i].size()!=constants::nNeighbours)
 			{
-				std::vector<double> horizontalBoundary = std::vector<double>(3);
-				std::vector<double> verticalBoundary = std::vector<double>(3);
-				std::vector<double> diagonalBoundary = std::vector<double>(3);
+				std::vector<double> xBoundary = std::vector<double>(3);
+				std::vector<double> yBoundary = std::vector<double>(3);
+				std::vector<double> xyBoundary = std::vector<double>(3);
+				std::vector<double> zBoundary = std::vector<double>(3);
 
-				horizontalBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
-				horizontalBoundary[1] = position[3*i+1];
-				horizontalBoundary[2] = position[3*i+2];
+				xBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
+				xBoundary[1] = position[3*i+1];
+				xBoundary[2] = position[3*i+2];
 
 				if (constants::nDimensions > 1){
-					verticalBoundary[0] = position[3*i];
-					verticalBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
-					verticalBoundary[2] = position[3*i+2];
+					yBoundary[0] = position[3*i];
+					yBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
+					yBoundary[2] = position[3*i+2];
 
 					if (i==0){
-					diagonalBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
-					diagonalBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
-					diagonalBoundary[2] = position[3*i+2];	
+					xyBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
+					xyBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
+					xyBoundary[2] = position[3*i+2];	
 					}
+				}
+
+				if (constants::nDimensions > 2) {
+					zBoundary[0] = position[3*i];
+					zBoundary[1] = position[3*i+1];
+					zBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
 				}
 
 
 				for (int j = 0; j < constants::nAtoms; j++)
 				{
 					if (i!=j){
-						// Horizontal boundary conditions
-						if (distance(horizontalBoundary.begin(), position.begin()+3*j) < constants::minDistance) {
-							if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
-								neighbours[i].push_back(j);
-								neighbours[j].push_back(i);
-							}
-						}
-						// Vertical boundary conditions
+						// x-boundary conditions
+						addNeighbours(xBoundary, position, i, j);
+						// y-boundary conditions
 						if (constants::nDimensions > 1){
-							if (distance(verticalBoundary.begin(), position.begin()+3*j) < constants::minDistance) {
-								if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
-									neighbours[i].push_back(j);
-									neighbours[j].push_back(i);
-								}
-							}
+							addNeighbours(yBoundary, position, i, j);
 							// Connecting over the diagonal
 							if (i==0){
-								if (distance(diagonalBoundary.begin(), position.begin()+3*j) < constants::minDistance) {
-									if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
-										neighbours[i].push_back(j);
-										neighbours[j].push_back(i);
-								}
+								addNeighbours(xyBoundary, position, i, j);
 							}
-							}
+						}
+						// z-boundary conditions
+						if (constants::nDimensions > 2) {
+							addNeighbours(zBoundary, position, i, j);
 						}
 					}
 				}
@@ -157,23 +153,27 @@ void Simulation::load()
 
 	// Printing
 
-	// std::cout << "Atom positions: \n";
-	// for (int i = 0; i < position.size() / 3; i++)
-	// {
-	// 	std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1] << "}, ";
-	// }
+	std::cout << "Atom positions: \n";
+	for (int i = 0; i < position.size() / 3; i++)
+	{
+		std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1];
+		if (constants::nDimensions > 2) {
+			std::cout <<" , " << position[3 * i + 2];
+		}
+		std::cout <<"}, ";
+	}
 
 
-	// std::cout << "Neighbours: \n";
-	// for (int i = 0; i < constants::nAtoms; i++)
-	// {
-	// 	std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
-	// 	for (int j = 0; j < neighbours[i].size(); j++)
-	// 	{
-	// 		std::cout << neighbours[i][j] << " ";
-	// 	}
-	// 	std::cout << std::endl;
-	// }
+	std::cout << "Neighbours: \n";
+	for (int i = 0; i < constants::nAtoms; i++)
+	{
+		std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
+		for (int j = 0; j < neighbours[i].size(); j++)
+		{
+			std::cout << neighbours[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
 
 }
 
@@ -433,6 +433,7 @@ void Simulation::normalize()
 	}
 }
 std::string Simulation::addFileNumber(std::string input){
+	// Manipulates input to add the next number for the file that will be generated
 	int i=0;
 
 	std::string fileString = input;
@@ -471,9 +472,8 @@ void Simulation::writeConstants(std::ofstream &f)
 	f.write((char *)&constants::anisotropyStrength, sizeof(double));
 }
 
-void Simulation::writePositions()
-{
-
+void Simulation::writePositions() {
+	// Writes the physical positions of the atoms to file
 	std::ofstream positionFile;
 	positionFile.open(addFileNumber(constants::positionFile));
 
@@ -488,11 +488,23 @@ void Simulation::writePositions()
 }
 
 double Simulation::distance(std::vector<double>::iterator a, std::vector<double>::iterator b){
+	//Returns the distance between a and b. Takes the first three elements as Carthesian coordinates
 	double distance;
 	distance = std::sqrt((*a-*b)*(*a-*b)
 						+(*(a+1)-*(b+1))*(*(a+1)-*(b+1))
 						+(*(a+2)-*(b+2))*(*(a+2)-*(b+2)));
 	return distance;
+}
+
+void Simulation::addNeighbours(std::vector<double> a, std::vector<double> b, int i, int j){
+	//Checks if the point i and j are neighbours and adds them if true
+		if (distance(a.begin(), b.begin()+3*j) < constants::minDistance) {
+			if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
+				std::cout << "succes: " << i << ", " << j << std::endl; 
+				neighbours[i].push_back(j);
+				neighbours[j].push_back(i);
+		}
+	}
 }
 
 std::vector<double>* Simulation::getSpin(){
