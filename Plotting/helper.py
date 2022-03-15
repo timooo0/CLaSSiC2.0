@@ -32,8 +32,8 @@ constants = {
 def getPath(subPath, i):
     path = os.getcwd()
     # Workout for calling the file from the plotting directory
-    if path[path.rfind(slash):] != slash+"CLaSSiC2.0":
-        path = path[:path.rfind(slash)]
+    #if path[path.rfind(slash):] != slash+"CLaSSiC2.0":
+    #    path = path[:path.rfind(slash)]
     path += subPath 
     return path[:-4] + str(i) + path[-4:]
 
@@ -92,7 +92,11 @@ def getData():
             parameters["nDimensions"] = 2
             parameters["basisPosition"] = np.array([[0., 0., 0.], [1., 0., 0.], [1. * np.cos(np.pi/3.), 1. * np.sin(np.pi/3.), 0.]])
             parameters["unitVectors"] = np.array([[2., 0., 0.], [2. * np.cos(np.pi/3.), 2. * np.sin(np.pi/3.), 0.]])
-
+        elif parameters["geometry"] == 5:
+            parameters["geometry"] = "hexagonal"
+            parameters["nDimensions"] = 2
+            parameters["basisPosition"] = np.array([[0., 0., 0.], [np.cos(np.pi/6.), -np.sin(np.pi/6.), 0.]])
+            parameters["unitVectors"] = np.array([[np.sqrt(3), 0., 0.], [np.sqrt(3)*np.cos(np.pi/3.), np.sqrt(3)*np.sin(np.pi/3.), 0.]])
         i += 1
         path = getPath(constants["pathData"], i)
     if i==0:
