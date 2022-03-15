@@ -432,6 +432,7 @@ void Simulation::normalize()
 		spin[3 * i + 2] *= invLength;
 	}
 }
+
 std::string Simulation::addFileNumber(std::string input){
 	// Manipulates input to add the next number for the file that will be generated
 	int i=0;
@@ -446,7 +447,6 @@ std::string Simulation::addFileNumber(std::string input){
 	}
 	return fileString;
 }
-
 
 void Simulation::writeConstants(std::ofstream &f)
 {
@@ -510,12 +510,15 @@ void Simulation::addNeighbours(std::vector<double> a, std::vector<double> b, int
 std::vector<double>* Simulation::getSpin(){
 	return &spin;
 }
+
 std::vector<double>* Simulation::getPosition(){
 	return &position;
 }
+
 std::vector<double>* Simulation::getRandomField(){
 	return &randomField;
 }
+
 std::vector<std::vector<int>>* Simulation::getNeighbours(){
 	return &neighbours;
 }
