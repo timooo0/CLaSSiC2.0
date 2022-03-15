@@ -83,6 +83,9 @@ void Simulation::load()
 		{
 			if (i != j)
 			{
+				if (i==4){
+					std::cout << "distance: " << distance(position.begin()+3*i,position.begin()+3*j) << std::endl;
+				}
 				if (distance(position.begin()+3*i,position.begin()+3*j) < constants::minDistance)
 				{
 					neighbours[i].push_back(j);
@@ -103,6 +106,8 @@ void Simulation::load()
 				std::vector<double> yBoundary = std::vector<double>(3);
 				std::vector<double> xyBoundary = std::vector<double>(3);
 				std::vector<double> zBoundary = std::vector<double>(3);
+				std::vector<double> xzBoundary = std::vector<double>(3);
+				std::vector<double> yzBoundary = std::vector<double>(3);
 
 				xBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
 				xBoundary[1] = position[3*i+1];
@@ -124,6 +129,14 @@ void Simulation::load()
 					zBoundary[0] = position[3*i];
 					zBoundary[1] = position[3*i+1];
 					zBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
+
+					xzBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
+					xzBoundary[1] = position[3*i+1];
+					xzBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
+
+					yzBoundary[0] = position[3*i];
+					yzBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
+					yzBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
 				}
 
 
@@ -143,6 +156,8 @@ void Simulation::load()
 						// z-boundary conditions
 						if (constants::nDimensions > 2) {
 							addNeighbours(zBoundary, position, i, j);
+							addNeighbours(xzBoundary, position, i ,j);
+							addNeighbours(yzBoundary, position, i ,j);
 						}
 					}
 				}
@@ -167,12 +182,14 @@ void Simulation::load()
 	std::cout << "Neighbours: \n";
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
-		std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
-		for (int j = 0; j < neighbours[i].size(); j++)
-		{
-			std::cout << neighbours[i][j] << " ";
+		if (neighbours[i].size() != constants::nNeighbours){
+			std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
+			for (int j = 0; j < neighbours[i].size(); j++)
+			{
+				std::cout << neighbours[i][j] << " ";
+			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 	}
 
 }
@@ -500,7 +517,7 @@ void Simulation::addNeighbours(std::vector<double> a, std::vector<double> b, int
 	//Checks if the point i and j are neighbours and adds them if true
 		if (distance(a.begin(), b.begin()+3*j) < constants::minDistance) {
 			if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
-				std::cout << "succes: " << i << ", " << j << std::endl; 
+				// std::cout << "succes: " << i << ", " << j << std::endl; 
 				neighbours[i].push_back(j);
 				neighbours[j].push_back(i);
 		}

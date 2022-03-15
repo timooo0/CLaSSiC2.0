@@ -122,6 +122,22 @@ int main(int argc, char *argv[])
 				constants::basisPosition = {{0., 0., 0.}};
 				constants::geometry = 6;
 			}
+			else if (std::string(argv[i+1]) == "hyperkagome") {
+				constants::nDimensions = 3;
+				constants::nNeighbours = 4;
+                constants::unitVectors = {{1., 0., 0.}, {0., 1., 0.},{0.5, 0.5, 0.5}};
+                constants::basisPosition = {{0.5, 0.75, 0.125}, {0.375, 0.5, 0.25}, {0.5, 0.25, 0.375}, {0.75, 0.125, 0.5}, {0.25, 0.375, 0.5}, {0.125, 0.5, 0.75}, {0.875, 0.5, 0.25}, {0.75, 0.625, 0.5}, {0.5, 0.75, 0.625}, {0.25, 0.875, 0.5}, {0.625, 0.5, 0.75}, {0.5, 0.25, 0.875}};
+                constants::geometry = 7;
+				constants::minDistance = 0.31;
+			}
+			else if (std::string(argv[i+1]) == "hyperkagome2") {
+				constants::nDimensions = 3;
+				constants::nNeighbours = 4;
+                constants::unitVectors = {{8., 0., 0.}, {0., 8., 0.},{0, 0, 8.}};
+                constants::basisPosition = {{2.,1.,0.},{2.,5.,0.},{6.,3.,0.},{6.,7.,0.},{0.,2.,1.},{4.,6.,1.},{1.,0.,2.},{3.,4.,2.},{5.,0.,2.},{7.,4.,2.},{0.,6.,3.},{4.,2.,3.},{2.,3.,4.},{2.,7.,4.},{6.,1.,4.},{6.,5.,4.},{0.,2.,5.},{4.,6.,5.},{1.,4.,6.},{3.,0.,6.},{5.,4.,6.},{7.,0.,6.},{0.,6.,7.},{4.,2.,7.}};
+                constants::geometry = 7;
+				constants::minDistance = 2.45;
+			}
 			else {
 				std::cerr << "-structure only has the following options: single, line, square, triangle, kagome, hexagonal, cubic\n";
 			}
