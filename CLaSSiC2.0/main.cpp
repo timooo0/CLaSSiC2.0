@@ -20,6 +20,9 @@ int main(int argc, char *argv[])
 		else if (std::string(argv[i]) == "-steps"){
 			constants::steps = (int)std::stod(argv[i+1]);
 		}
+		else if (std::string(argv[i]) == "-burnInSteps"){
+			constants::burnInSteps = (int)std::stod(argv[i+1]);
+		}
 		else if (std::string(argv[i]) == "-J"){
 			constants::J = std::stod(argv[i+1])*constants::boltzmann;
 		}
