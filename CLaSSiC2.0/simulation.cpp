@@ -392,6 +392,26 @@ void Simulation::run()
 		temperatureDistribution = std::normal_distribution<double>(0, constants::temperatureSigma);
 	}
 
+	// Burn in with a higher temperature:
+	std::normal_distribution<double> burnInDistribution;
+	if (constants::burnInSteps>0){
+		burnInDistribution = std::normal_distribution<double>(0, 10.*constants::temperatureSigma);
+		
+		for (int i = 0; i < constants::burnInSteps; i++)
+		{
+			if (constants::temperatureSigma != 0 && constants::temperature != 0)
+			{
+				for (int i = 0; i < constants::nAtoms * 3; i++)
+				{
+					randomField[i] = burnInDistribution(engine);
+				}
+				integrator.integrate(neighbours, spin, randomField);
+				normalize();
+			}
+		}
+	}
+
+
 	//Set the stabilizerField
 	if (constants::geometry==4 && constants::stabilize){
 		integrator.setStabilizerField();

@@ -34,6 +34,7 @@ namespace constants
 	// Simulation parameters
 	double dt = 1e-15;
 	int steps = (int) 1e6;
+	int burnInSteps = 0;
 	double anisotropy[3] = {0, 0, 1}; // Should be normalized
 	double anisotropyStrength = 0;
 	double anisotropyAxis = 0;

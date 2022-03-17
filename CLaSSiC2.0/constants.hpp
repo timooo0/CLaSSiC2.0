@@ -32,6 +32,7 @@ namespace constants
     // Simulation parameters
     extern double dt;
     extern int steps;
+    extern int burnInSteps;
     extern double anisotropy[3];
     extern double anisotropyStrength;
     extern double anisotropyAxis;
