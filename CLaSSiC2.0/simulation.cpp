@@ -83,9 +83,9 @@ void Simulation::load()
 		{
 			if (i != j)
 			{
-				if (i==4){
-					std::cout << "distance: " << distance(position.begin()+3*i,position.begin()+3*j) << std::endl;
-				}
+				// if (i==4){
+				// 	std::cout << "distance: " << distance(position.begin()+3*i,position.begin()+3*j) << std::endl;
+				// }
 				if (distance(position.begin()+3*i,position.begin()+3*j) < constants::minDistance)
 				{
 					neighbours[i].push_back(j);
@@ -100,14 +100,18 @@ void Simulation::load()
 	if (constants::periodicBoundary){
 		for (int i = 0; i < constants::nAtoms; i++)
 		{ 
-			if (neighbours[i].size()!=constants::nNeighbours)
+			// if (neighbours[i].size()!=constants::nNeighbours)
+			if (true)
 			{
 				std::vector<double> xBoundary = std::vector<double>(3);
 				std::vector<double> yBoundary = std::vector<double>(3);
-				std::vector<double> xyBoundary = std::vector<double>(3);
 				std::vector<double> zBoundary = std::vector<double>(3);
+				std::vector<double> xyBoundary = std::vector<double>(3);
+				std::vector<double> xyOrthoBoundary = std::vector<double>(3);
 				std::vector<double> xzBoundary = std::vector<double>(3);
+				std::vector<double> xzOrthoBoundary = std::vector<double>(3);
 				std::vector<double> yzBoundary = std::vector<double>(3);
+				std::vector<double> yzOrthoBoundary = std::vector<double>(3);
 
 				xBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
 				xBoundary[1] = position[3*i+1];
@@ -118,11 +122,13 @@ void Simulation::load()
 					yBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
 					yBoundary[2] = position[3*i+2];
 
-					if (i==0){
 					xyBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
 					xyBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
-					xyBoundary[2] = position[3*i+2];	
-					}
+					xyBoundary[2] = position[3*i+2];
+
+					xyOrthoBoundary[0] = position[3*i] - constants::nUnitCells * constants::unitVectors[0][0];
+					xyOrthoBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
+					xyOrthoBoundary[2] = position[3*i+2];	
 				}
 
 				if (constants::nDimensions > 2) {
@@ -134,9 +140,17 @@ void Simulation::load()
 					xzBoundary[1] = position[3*i+1];
 					xzBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
 
+					xzOrthoBoundary[0] = position[3*i] - constants::nUnitCells * constants::unitVectors[0][0];
+					xzOrthoBoundary[1] = position[3*i+1];
+					xzOrthoBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
+
 					yzBoundary[0] = position[3*i];
 					yzBoundary[1] = position[3*i+1] + constants::nUnitCells * constants::unitVectors[1][1];
 					yzBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
+
+					yzOrthoBoundary[0] = position[3*i];
+					yzOrthoBoundary[1] = position[3*i+1] - constants::nUnitCells * constants::unitVectors[1][1];
+					yzOrthoBoundary[2] = position[3*i+2] + constants::nUnitCells * constants::unitVectors[2][2];
 				}
 
 
@@ -149,15 +163,16 @@ void Simulation::load()
 						if (constants::nDimensions > 1){
 							addNeighbours(yBoundary, position, i, j);
 							// Connecting over the diagonal
-							if (i==0){
-								addNeighbours(xyBoundary, position, i, j);
-							}
+							addNeighbours(xyBoundary, position, i, j);
+							addNeighbours(xyOrthoBoundary, position, i, j);
 						}
 						// z-boundary conditions
 						if (constants::nDimensions > 2) {
 							addNeighbours(zBoundary, position, i, j);
 							addNeighbours(xzBoundary, position, i ,j);
+							addNeighbours(xzOrthoBoundary, position, i, j);
 							addNeighbours(yzBoundary, position, i ,j);
+							addNeighbours(yzOrthoBoundary, position, i ,j);
 						}
 					}
 				}
@@ -168,15 +183,15 @@ void Simulation::load()
 
 	// Printing
 
-	std::cout << "Atom positions: \n";
-	for (int i = 0; i < position.size() / 3; i++)
-	{
-		std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1];
-		if (constants::nDimensions > 2) {
-			std::cout <<" , " << position[3 * i + 2];
-		}
-		std::cout <<"}, ";
-	}
+	// std::cout << "Atom positions: \n";
+	// for (int i = 0; i < position.size() / 3; i++)
+	// {
+	// 	std::cout << "{" << position[3 * i] << " , " << position[3 * i + 1];
+	// 	if (constants::nDimensions > 2) {
+	// 		std::cout <<" , " << position[3 * i + 2];
+	// 	}
+	// 	std::cout <<"}, ";
+	// }
 
 
 	std::cout << "Neighbours: \n";
@@ -537,7 +552,6 @@ void Simulation::addNeighbours(std::vector<double> a, std::vector<double> b, int
 	//Checks if the point i and j are neighbours and adds them if true
 		if (distance(a.begin(), b.begin()+3*j) < constants::minDistance) {
 			if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
-				// std::cout << "succes: " << i << ", " << j << std::endl; 
 				neighbours[i].push_back(j);
 				neighbours[j].push_back(i);
 		}
