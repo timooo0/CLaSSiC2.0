@@ -194,18 +194,18 @@ void Simulation::load()
 	// }
 
 
-	std::cout << "Neighbours: \n";
-	for (int i = 0; i < constants::nAtoms; i++)
-	{
-		if (neighbours[i].size() != constants::nNeighbours){
-			std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
-			for (int j = 0; j < neighbours[i].size(); j++)
-			{
-				std::cout << neighbours[i][j] << " ";
-			}
-			std::cout << std::endl;
-		}
-	}
+	// std::cout << "Neighbours: \n";
+	// for (int i = 0; i < constants::nAtoms; i++)
+	// {
+	// 	if (neighbours[i].size() != constants::nNeighbours){
+	// 		std::cout << i << "(" << neighbours[i].size() << ")"<<  ": ";
+	// 		for (int j = 0; j < neighbours[i].size(); j++)
+	// 		{
+	// 			std::cout << neighbours[i][j] << " ";
+	// 		}
+	// 		std::cout << std::endl;
+	// 	}
+	// }
 
 }
 
@@ -242,20 +242,16 @@ void Simulation::initialize()
 		// Small z angle for spin waves
 		for (int i = 0; i < (int)constants::nAtoms; i++)
 		{
+				spin[3 * i] = 0.001 * std::cos((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+				spin[3 * i + 1] = 0.001 * std::sin((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+				spin[3 * i + 2] = 1;
 			if (constants::J < 0)
 				{
-					if (i % 2 == 0)
-					{
-						swap = 1;
-					}
-					else
-					{
-						swap = -1;
-					}
+					spin[3 * i + 3] = 0.001 * std::cos((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+					spin[3 * i + 4] = -0.001 * std::sin((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+					spin[3 * i + 5] = -1;
+					i++;
 				}
-				spin[3 * i] = swap * 0.001 * std::cos((float)i /constants::nAtoms * constants::mode * 2 * constants::pi);
-				spin[3 * i + 1] = swap * 0.001 * std::sin((float)i /constants::nAtoms * constants::mode * 2 * constants::pi);
-				spin[3 * i + 2] = swap * 1;
 		}
 		normalize();
 		break;
@@ -305,30 +301,6 @@ void Simulation::initialize()
 		spin[8] = -1;
 	break;
 		case 6:
-		// Small z angle for spin waves
-		spin[0] = 1;
-		spin[1] = 0;
-		spin[2] = 0.2;
-		for (int i = 1; i < (int)constants::nAtoms; i++)
-		{
-			if (constants::J < 0)
-				{
-					if (i % 2 == 0)
-					{
-						swap = 1;
-					}
-					else
-					{
-						swap = -1;
-					}
-				}
-				spin[3 * i] = 0;
-				spin[3 * i + 1] = 0;
-				spin[3 * i + 2] = swap * 1;
-		}
-		normalize();
-	break;
-		case 7:
 		// Kagome antiferromagnetic sqrt(3) x sqrt(3)
 		double offset;
 		for (int i = 0; i < constants::nAtoms; i++){
@@ -350,7 +322,7 @@ void Simulation::initialize()
 			}
 		}
 	break;
-		case 8:
+		case 7:
 		// Kagome Q0
 		for (double i = 0; i < constants::nAtoms; i++){
 			iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
