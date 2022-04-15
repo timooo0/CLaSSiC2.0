@@ -1,6 +1,21 @@
 #include <vector>
 #include <string>
 
+class Vector3D{
+public:
+	std::vector<float> x;
+	std::vector<float> y;
+	std::vector<float> z;
+
+    Vector3D (int size, bool pad){
+        // size += pad && size%8!=0 ? 8-size%8 : 0;
+        x = std::vector<float>(size);
+        y = std::vector<float>(size);
+        z = std::vector<float>(size);
+    }
+
+};
+
 namespace constants
 {
     // Physical constants
@@ -12,47 +27,47 @@ namespace constants
     extern double pi;
 
     // System constants
-    extern double spinSize;
+    extern float spinSize;
     extern int nUnitCells;
     extern int nDimensions;
     extern int nAtoms;
-    extern std::vector<std::vector<double>> unitVectors;
-    extern std::vector<std::vector<double>> basisPosition;
+    extern std::vector<std::vector<float>> unitVectors;
+    extern std::vector<std::vector<float>> basisPosition;
 
     // Simulation settings;
     extern int spinInit;
     extern int geometry;
-    extern double angle;
+    extern float angle;
     extern int mode;
     extern int nNeighbours;
-    extern double minDistance;
+    extern float minDistance;
     extern bool periodicBoundary;
     extern bool stabilize;
 
     // Simulation parameters
-    extern double dt;
+    extern float dt;
     extern int steps;
     extern int burnInSteps;
-    extern double anisotropy[3];
-    extern double anisotropyStrength;
-    extern double anisotropyAxis;
-	extern double anisotropyPlane;
-    extern double magneticField[3];
-    extern double J;
-    extern double lambda;
-    extern double temperature;
+    extern float anisotropy[3];
+    extern float anisotropyStrength;
+    extern float anisotropyAxis;
+	extern float anisotropyPlane;
+    extern float magneticField[3];
+    extern float J;
+    extern float lambda;
+    extern float temperature;
 
     // File constants
     extern std::string positionFile;
     extern std::string outputFile;
     extern std::string energyFile;
-    extern double offset;
-    extern double length;
+    extern float offset;
+    extern float length;
 
     // Prefactors
-    extern double exchangePrefactor;
-    extern double temperatureSigma;
-    extern double anisotropyMatrix[9];
+    extern float exchangePrefactor;
+    extern float temperatureSigma;
+    extern float anisotropyMatrix[9];
 }
 
 void setDerivatives();
