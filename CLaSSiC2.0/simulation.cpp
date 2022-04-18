@@ -18,7 +18,6 @@ Simulation::Simulation()
 	if (!std::filesystem::is_directory("data") || !std::filesystem::exists("data")) {
     	std::filesystem::create_directory("data"); // create src folder
 	}
-
 	load();
 	initialize();
 }
@@ -103,15 +102,15 @@ void Simulation::load()
 			// if (neighbours[i].size()!=constants::nNeighbours)
 			if (true)
 			{
-				std::vector<float> xBoundary = std::vector<float>(3);
-				std::vector<float> yBoundary = std::vector<float>(3);
-				std::vector<float> zBoundary = std::vector<float>(3);
-				std::vector<float> xyBoundary = std::vector<float>(3);
-				std::vector<float> xyOrthoBoundary = std::vector<float>(3);
-				std::vector<float> xzBoundary = std::vector<float>(3);
-				std::vector<float> xzOrthoBoundary = std::vector<float>(3);
-				std::vector<float> yzBoundary = std::vector<float>(3);
-				std::vector<float> yzOrthoBoundary = std::vector<float>(3);
+				std::vector<double> xBoundary = std::vector<double>(3);
+				std::vector<double> yBoundary = std::vector<double>(3);
+				std::vector<double> zBoundary = std::vector<double>(3);
+				std::vector<double> xyBoundary = std::vector<double>(3);
+				std::vector<double> xyOrthoBoundary = std::vector<double>(3);
+				std::vector<double> xzBoundary = std::vector<double>(3);
+				std::vector<double> xzOrthoBoundary = std::vector<double>(3);
+				std::vector<double> yzBoundary = std::vector<double>(3);
+				std::vector<double> yzOrthoBoundary = std::vector<double>(3);
 
 				xBoundary[0] = position[3*i] + constants::nUnitCells * constants::unitVectors[0][0];
 				xBoundary[1] = position[3*i+1];
@@ -216,8 +215,8 @@ void Simulation::initialize()
 	*/
 
 	int swap = 1;
-	float delta = 1;
-	float iterAngle;
+	double delta = 1;
+	double iterAngle;
 	switch (constants::spinInit)
 	{
 	// case 0:
@@ -233,8 +232,10 @@ void Simulation::initialize()
 		// Angle with z-axis
 		for (int i = 0; i < constants::nAtoms; i++)
 		{
-			spin.x[i] = std::cos((float)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
-			spin.y[i] = std::sin((float)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
+			// spin.x[i] = std::cos((double)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
+			// spin.y[i] = std::sin((double)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
+			spin.x[i] = std::sin(constants::angle);
+			spin.x[i] = std::sin(constants::angle);
 			spin.z[i] = std::cos(constants::angle);
 		}
 		break;
@@ -242,13 +243,13 @@ void Simulation::initialize()
 	// 	// Small z angle for spin waves
 	// 	for (int i = 0; i < (int)constants::nAtoms; i++)
 	// 	{
-	// 			spin[3 * i] = 0.001 * std::cos((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
-	// 			spin[3 * i + 1] = 0.001 * std::sin((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+	// 			spin[3 * i] = 0.001 * std::cos((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+	// 			spin[3 * i + 1] = 0.001 * std::sin((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
 	// 			spin[3 * i + 2] = 1;
 	// 		if (constants::J < 0)
 	// 			{
-	// 				spin[3 * i + 3] = 0.001 * std::cos((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
-	// 				spin[3 * i + 4] = -0.001 * std::sin((float)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+	// 				spin[3 * i + 3] = 0.001 * std::cos((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+	// 				spin[3 * i + 4] = -0.001 * std::sin((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
 	// 				spin[3 * i + 5] = -1;
 	// 				i++;
 	// 			}
@@ -302,7 +303,7 @@ void Simulation::initialize()
 	// break;
 	// 	case 6:
 	// 	// Kagome antiferromagnetic sqrt(3) x sqrt(3)
-	// 	float offset;
+	// 	double offset;
 	// 	for (int i = 0; i < constants::nAtoms; i++){
 	// 		offset = 2./3.*constants::pi*(i/3/constants::nUnitCells%2);
 	// 		iterAngle = 1./2.*constants::pi-2./3.*constants::pi*(i/3)+2./3.*constants::pi*i + offset;
@@ -324,7 +325,7 @@ void Simulation::initialize()
 	// break;
 	// 	case 7:
 	// 	// Kagome Q0
-	// 	for (float i = 0; i < constants::nAtoms; i++){
+	// 	for (double i = 0; i < constants::nAtoms; i++){
 	// 		iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
 	// 		spin[3*i] = std::cos(iterAngle);
 	// 		spin[3*i+1] = std::sin(iterAngle);
@@ -373,16 +374,16 @@ void Simulation::run()
 	// Temperature fluctatuations
 	std::random_device seed;
 	std::default_random_engine engine{seed()};
-	std::normal_distribution<float> temperatureDistribution;
+	std::normal_distribution<double> temperatureDistribution;
 	if (constants::temperatureSigma != 0 && constants::temperature != 0)
 	{
-		temperatureDistribution = std::normal_distribution<float>(0, constants::temperatureSigma);
+		temperatureDistribution = std::normal_distribution<double>(0, constants::temperatureSigma);
 	}
 
 	// Burn in with a higher temperature:
-	std::normal_distribution<float> burnInDistribution;
+	std::normal_distribution<double> burnInDistribution;
 	if (constants::burnInSteps>0){
-		burnInDistribution = std::normal_distribution<float>(0, 10.*constants::temperatureSigma);
+		burnInDistribution = std::normal_distribution<double>(0, 10.*constants::temperatureSigma);
 		
 		for (int i = 0; i < constants::burnInSteps; i++)
 		{
@@ -423,30 +424,34 @@ void Simulation::run()
 		}
 
 
-		if (i % 1000 == 0)
+		if (i % 10000 == 0)
 		{
-			std::cout << "Progress: " << (float)i / constants::steps * 100 << "%\r";
+			double progress = (double)i / constants::steps;
+			// std::cout << (int)(progress*10) << 10-(int)((progress*10)) << "\n";
+			// std::cout << "Running: |" << std::string((int)(progress*20),'#') << std::string(20-(int)(progress*20),' ')<< "| "<< progress*100 << "%\r";
+			std::cout << "Progress: "<< progress*100 << "%\r";
 		}
 		if (i % 100 == 0)
 		{
-			fileSpin.write((char *)&spin.x[0], sizeof(float) * constants::nAtoms);
-			fileSpin.write((char *)&spin.y[0], sizeof(float) * constants::nAtoms);
-			fileSpin.write((char *)&spin.z[0], sizeof(float) * constants::nAtoms);
+			fileSpin.write((char *)&spin.x[0], sizeof(double) * constants::nAtoms);
+			fileSpin.write((char *)&spin.y[0], sizeof(double) * constants::nAtoms);
+			fileSpin.write((char *)&spin.z[0], sizeof(double) * constants::nAtoms);
 			// totalEnergy[i/100]=integrator.calculateEnergy(spin);
 		}
+
 		integrator.integrate(neighbours, spin, randomField);
-		// normalize();
+		normalize();
 	}
 
 	// Wrap up
 	fileSpin.close();
 	fileEnergy.open(addFileNumber(constants::energyFile), std::ios::binary);
-	fileEnergy.write((char *) &totalEnergy[0], sizeof(float)*((int)constants::steps/100));
+	fileEnergy.write((char *) &totalEnergy[0], sizeof(double)*((int)constants::steps/100));
 	fileEnergy.close();
 	auto msInt = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
-	std::cout << "\nDuration: " << (float)msInt.count() / 1000 << "seconds"
+	std::cout << "\nDuration: " << (double)msInt.count() / 1000 << "seconds"
 			  << std::endl;
-	std::cout << "Temperature time: " << (float)msIntTemperature.count() / 1000 << "seconds"
+	std::cout << "Temperature time: " << (double)msIntTemperature.count() / 1000 << "seconds"
 			  << std::endl;
 }
 
@@ -455,7 +460,7 @@ void Simulation::normalize()
 	/*
 	Helper function to normalize all of the spins
 	*/
-	float invLength;
+	double invLength;
 	for (int i = 0; i < constants::nAtoms; i++)
 	{
 		invLength = 1 / std::sqrt(spin.x[i] * spin.x[i] + spin.y[i] * spin.y[i] + spin.z[i] * spin.z[i]);
@@ -485,23 +490,23 @@ void Simulation::writeConstants(std::ofstream &f)
 	/*
 	Writes all constants and system parameters to the start of the file
 	*/
-	float saveAtoms = constants::nAtoms;
-	float saveSteps = constants::steps;
-	float saveGeometry = constants::geometry;
-	float saveNUnitcells = constants::nUnitCells;
-	f.write((char *)&constants::offset, sizeof(float));
-	f.write((char *)&saveAtoms, sizeof(float));
-	f.write((char *)&constants::dt, sizeof(float));
-	f.write((char *)&saveSteps, sizeof(float));
-	f.write((char *)&constants::J, sizeof(float));
-	f.write((char *)&constants::lambda, sizeof(float));
-	f.write((char *)&constants::magneticField[0], 3 * sizeof(float));
-	f.write((char *)&constants::anisotropy[0], 3 * sizeof(float));
-	f.write((char *)&constants::temperature, sizeof(float));
-	f.write((char *)&constants::length, sizeof(float));
-	f.write((char *)&saveGeometry, sizeof(float));
-	f.write((char *)&saveNUnitcells, sizeof(float));
-	f.write((char *)&constants::anisotropyStrength, sizeof(float));
+	double saveAtoms = constants::nAtoms;
+	double saveSteps = constants::steps;
+	double saveGeometry = constants::geometry;
+	double saveNUnitcells = constants::nUnitCells;
+	f.write((char *)&constants::offset, sizeof(double));
+	f.write((char *)&saveAtoms, sizeof(double));
+	f.write((char *)&constants::dt, sizeof(double));
+	f.write((char *)&saveSteps, sizeof(double));
+	f.write((char *)&constants::J, sizeof(double));
+	f.write((char *)&constants::lambda, sizeof(double));
+	f.write((char *)&constants::magneticField[0], 3 * sizeof(double));
+	f.write((char *)&constants::anisotropy[0], 3 * sizeof(double));
+	f.write((char *)&constants::temperature, sizeof(double));
+	f.write((char *)&constants::length, sizeof(double));
+	f.write((char *)&saveGeometry, sizeof(double));
+	f.write((char *)&saveNUnitcells, sizeof(double));
+	f.write((char *)&constants::anisotropyStrength, sizeof(double));
 }
 
 void Simulation::writePositions() {
@@ -519,16 +524,16 @@ void Simulation::writePositions() {
 	positionFile.close();
 }
 
-float Simulation::distance(std::vector<float>::iterator a, std::vector<float>::iterator b){
+double Simulation::distance(std::vector<double>::iterator a, std::vector<double>::iterator b){
 	//Returns the distance between a and b. Takes the first three elements as Carthesian coordinates
-	float distance;
+	double distance;
 	distance = std::sqrt((*a-*b)*(*a-*b)
 						+(*(a+1)-*(b+1))*(*(a+1)-*(b+1))
 						+(*(a+2)-*(b+2))*(*(a+2)-*(b+2)));
 	return distance;
 }
 
-void Simulation::addNeighbours(std::vector<float> a, std::vector<float> b, int i, int j){
+void Simulation::addNeighbours(std::vector<double> a, std::vector<double> b, int i, int j){
 	//Checks if the point i and j are neighbours and adds them if true
 		if (distance(a.begin(), b.begin()+3*j) < constants::minDistance) {
 			if (std::find(neighbours[i].begin(), neighbours[i].end(), j) == neighbours[i].end()) {
@@ -542,11 +547,11 @@ Vector3D* Simulation::getSpin(){
 	return &spin;
 }
 
-std::vector<float>* Simulation::getPosition(){
+std::vector<double>* Simulation::getPosition(){
 	return &position;
 }
 
-std::vector<float>* Simulation::getRandomField(){
+std::vector<double>* Simulation::getRandomField(){
 	return &randomField;
 }
 

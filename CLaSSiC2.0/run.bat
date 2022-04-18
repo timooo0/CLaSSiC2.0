@@ -8,7 +8,7 @@ if exist data\ (
 )
 
 setlocal
-set dt=1e-14
+set dt=1e-15
 set steps=1e6
 set burnInSteps=0
 set J=0
@@ -24,13 +24,13 @@ set mode=0
 REM single, line, square, triangle, kagome, hexagonal
 set structure=line
 REM always have even number of cells
-set nCellsX=1
+set nCellsX=100
 set periodicBoundary=true
 set stabilize=false
 
-for %%i in (1) do ^
+for %%i in (5) do ^
 model.exe -dt %dt% -steps %steps% -burnInSteps %burnInSteps% -J %J% -lambda %lambda% -B %B% ^
 -anisotropyAxis %anisotropyAxis% -anisotropyPlane %anisotropyPlane% ^
--T %T% -init %init% -angle %angle% -mode %mode% -nCellsX %%i ^
--periodicBoundary %periodicBoundary% -structure %structure% -stabilize %stabilize%
+-T %T% -init %init% -angle %angle% -mode %mode% -nCellsX %nCellsX% ^
+-periodicBoundary %periodicBoundary% -structure %structure% -stabilize %stabilize% -debugLevel 1
 endlocal

@@ -5,10 +5,10 @@ class Simulation
 {
 private:
 	Vector3D spin =  Vector3D(constants::nAtoms, true);
-	std::vector<float> position;
-	std::vector<float> randomField = std::vector<float>(constants::nAtoms * 3, 0);
+	std::vector<double> position;
+	std::vector<double> randomField = std::vector<double>((constants::nAtoms + constants::nAtoms%4!=0 ? 4-constants::nAtoms%4 : 0)*3, 0);
 	std::vector<std::vector<int>> neighbours = std::vector<std::vector<int>>(constants::nAtoms, std::vector<int>());
-	std::vector<float> totalEnergy = std::vector<float>((int)constants::steps/100);
+	std::vector<double> totalEnergy = std::vector<double>((int)constants::steps/100);
 	Integrator integrator;
 
 public:
@@ -20,11 +20,11 @@ public:
 	std::string addFileNumber(std::string input);
 	void writeConstants(std::ofstream &file);
 	void writePositions();
-	float distance(std::vector<float>::iterator a, std::vector<float>::iterator b);
-	void addNeighbours(std::vector<float> a, std::vector<float> b, int i, int j);
+	double distance(std::vector<double>::iterator a, std::vector<double>::iterator b);
+	void addNeighbours(std::vector<double> a, std::vector<double> b, int i, int j);
 
 	Vector3D* getSpin();
-	std::vector<float>* getPosition();
-	std::vector<float>* getRandomField();
+	std::vector<double>* getPosition();
+	std::vector<double>* getRandomField();
 	std::vector<std::vector<int>>* getNeighbours();
 };

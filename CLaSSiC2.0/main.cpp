@@ -14,47 +14,43 @@ int main(int argc, char *argv[])
 	for (int i = 1; i < argc; i++)
 	{
 		if (std::string(argv[i]) == "-dt"){
-			constants::dt = std::stof(argv[i+1]);
+			constants::dt = std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-steps"){
-			constants::steps = (int)std::stof(argv[i+1]);
+			constants::steps = (int)std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-burnInSteps"){
-			constants::burnInSteps = (int)std::stof(argv[i+1]);
+			constants::burnInSteps = (int)std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-J"){
-			constants::J = std::stof(argv[i+1])*constants::boltzmann;
+			constants::J = std::stod(argv[i+1])*constants::boltzmann;
 		}
 		else if (std::string(argv[i]) == "-lambda"){
-			constants::lambda = std::stof(argv[i+1]);
-			std::cout << "lambda: " << constants::lambda << std::endl;
+			constants::lambda = std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-B"){
-			constants::magneticField[2] = std::stof(argv[i+1]);
+			constants::magneticField[2] = std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-anisotropyAxis"){
-			constants::anisotropyAxis = std::stof(argv[i+1]);
-			// std::cout << "anisotropyAxis: " << constants::anisotropyAxis << std::endl;
+			constants::anisotropyAxis = std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-anisotropyPlane"){
-			constants::anisotropyPlane = std::stof(argv[i+1]);
-			// std::cout << "anisotropyPlane: " << constants::anisotropyPlane << std::endl;
+			constants::anisotropyPlane = std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-T"){
-			constants::temperature = std::stof(argv[i+1]);
+			constants::temperature = std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-init"){
 			constants::spinInit = std::stoi(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-angle"){
-			constants::angle = std::stof(argv[i+1])*constants::pi/180.;
-			// std::cout << "angle: " << constants::angle << std::endl;
+			constants::angle = std::stod(argv[i+1])*constants::pi/180.;
 		}
 		else if (std::string(argv[i]) == "-mode"){
-			constants::mode = std::stoi(argv[i+1]);
+			constants::mode = (int)std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-nCellsX"){
-			constants::nUnitCells = (int)std::stof(argv[i+1]);
+			constants::nUnitCells = (int)std::stod(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-periodicBoundary") {
 			if (std::string(argv[i+1]) == "false") {
@@ -69,6 +65,9 @@ int main(int argc, char *argv[])
 			} else {
 				constants::stabilize = false;
 			}
+		}
+		else if (std::string(argv[i]) == "-debugLevel"){
+			constants::debugLevel = std::stoi(argv[i+1]);
 		}
 		else if (std::string(argv[i]) == "-structure"){
 			if (std::string(argv[i+1]) == "single"){
@@ -95,26 +94,23 @@ int main(int argc, char *argv[])
 			else if (std::string(argv[i+1]) == "triangle") {
 				constants::nDimensions = 2;
 				constants::nNeighbours = 6;
-				constants::unitVectors = {{1., 0., 0.}, {(float)std::cos(constants::pi/3.), (float)std::sin(constants::pi/3.), 0.}};
+				constants::unitVectors = {{1., 0., 0.}, {(double)std::cos(constants::pi/3.), (double)std::sin(constants::pi/3.), 0.}};
 				constants::basisPosition = {{0., 0., 0.}};
 				constants::geometry = 3;
-				std::cout << "Unit vectors:\n";
-				std::cout << "a0: " << constants::unitVectors[0][0] << ", " << constants::unitVectors[0][1] << ", " << constants::unitVectors[0][2] << std::endl;
-				std::cout << "a1: " << constants::unitVectors[1][0] << ", " << constants::unitVectors[1][1] << ", " << constants::unitVectors[1][2] << std::endl;
 			} 
 			else if (std::string(argv[i+1]) == "kagome") {
 				constants::nDimensions = 2;
 				constants::nNeighbours = 4;
-				constants::unitVectors = {{2., 0., 0.}, {2.0f * (float)std::cos(constants::pi/3.), 2.0f *(float) std::sin(constants::pi/3.), 0.}};
-				constants::basisPosition = {{0., 0., 0.}, {1., 0., 0.}, {1.0f * (float)std::cos(constants::pi/3.), 1.0f * (float)std::sin(constants::pi/3.), 0.}};
+				constants::unitVectors = {{2., 0., 0.}, {2.0f * (double)std::cos(constants::pi/3.), 2.0f *(double) std::sin(constants::pi/3.), 0.}};
+				constants::basisPosition = {{0., 0., 0.}, {1., 0., 0.}, {1.0f * (double)std::cos(constants::pi/3.), 1.0f * (double)std::sin(constants::pi/3.), 0.}};
 				constants::geometry = 4;
 			}
 
 			else if (std::string(argv[i+1])== "hexagonal") {
 				constants::nDimensions = 2;
 				constants::nNeighbours = 3;
-				constants::unitVectors = {{(float)std::sqrt(3), 0., 0.}, {(float)std::sqrt(3)*(float)std::cos(constants::pi/3.), (float)std::sqrt(3)*(float)std::sin(constants::pi/3.), 0.}};
-				constants::basisPosition = {{0., 0., 0.}, {(float)std::cos(constants::pi/6.), (float)-std::sin(constants::pi/6.), 0.}};
+				constants::unitVectors = {{(double)std::sqrt(3), 0., 0.}, {(double)std::sqrt(3)*(double)std::cos(constants::pi/3.), (double)std::sqrt(3)*(double)std::sin(constants::pi/3.), 0.}};
+				constants::basisPosition = {{0., 0., 0.}, {(double)std::cos(constants::pi/6.), (double)-std::sin(constants::pi/6.), 0.}};
 				constants::geometry = 5;
 			}
 
@@ -141,6 +137,23 @@ int main(int argc, char *argv[])
 		i++;
 	}
 	setDerivatives();
+	if (constants::debugLevel >= 1){
+		fancyPrint("dt", constants::dt);
+		fancyPrint("steps", constants::steps);
+		fancyPrint("burnInSteps", constants::burnInSteps);
+		fancyPrint("J", constants::J);
+		fancyPrint("B", constants::magneticField[2]);
+		fancyPrint("anisotropyAxis", constants::anisotropyAxis);
+		fancyPrint("AnisotropyPlane", constants::anisotropyPlane);
+		fancyPrint("T", constants::temperature);
+		fancyPrint("Lambda", constants::lambda);
+		fancyPrint("Init", constants::spinInit);
+		fancyPrint("Angle", constants::angle);
+		fancyPrint("Mode", constants::mode);
+		fancyPrint("structure", constants::geometry);
+		fancyPrint("nCellsX", constants::nUnitCells);
+
+	}
 	Simulation sim;
 	sim.run();
 	

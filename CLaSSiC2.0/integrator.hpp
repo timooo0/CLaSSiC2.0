@@ -12,9 +12,9 @@ private:
 public:
 	void calculateEffectiveField(std::vector<std::vector<int>> &neighbours, Vector3D &spin);
 	void evaluate(std::vector<std::vector<int>> &neighbours, Vector3D &spin);
-	void integrate(std::vector<std::vector<int>> &neighbours, Vector3D &spin, std::vector<float> &randomField);
-	float calculateEnergy(Vector3D &spin);
-	float dotProduct(const float a[3], float b[3]);
+	void integrate(std::vector<std::vector<int>> &neighbours, Vector3D &spin, std::vector<double> &randomField);
+	double calculateEnergy(Vector3D &spin);
+	double dotProduct(const double a[3], double b[3]);
 
 	Vector3D* getEffectiveField();
 	void setStabilizerField();

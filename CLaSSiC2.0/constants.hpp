@@ -3,15 +3,15 @@
 
 class Vector3D{
 public:
-	std::vector<float> x;
-	std::vector<float> y;
-	std::vector<float> z;
+	std::vector<double> x;
+	std::vector<double> y;
+	std::vector<double> z;
 
     Vector3D (int size, bool pad){
-        // size += pad && size%8!=0 ? 8-size%8 : 0;
-        x = std::vector<float>(size);
-        y = std::vector<float>(size);
-        z = std::vector<float>(size);
+        size += pad && size%4!=0 ? 4-size%4 : 0;
+        x = std::vector<double>(size, 0);
+        y = std::vector<double>(size, 0);
+        z = std::vector<double>(size, 0);
     }
 
 };
@@ -27,50 +27,52 @@ namespace constants
     extern double pi;
 
     // System constants
-    extern float spinSize;
+    extern double spinSize;
     extern int nUnitCells;
     extern int nDimensions;
     extern int nAtoms;
-    extern std::vector<std::vector<float>> unitVectors;
-    extern std::vector<std::vector<float>> basisPosition;
+    extern std::vector<std::vector<double>> unitVectors;
+    extern std::vector<std::vector<double>> basisPosition;
 
     // Simulation settings;
     extern int spinInit;
     extern int geometry;
-    extern float angle;
+    extern double angle;
     extern int mode;
     extern int nNeighbours;
-    extern float minDistance;
+    extern double minDistance;
     extern bool periodicBoundary;
     extern bool stabilize;
+    extern int debugLevel;
 
     // Simulation parameters
-    extern float dt;
+    extern double dt;
     extern int steps;
     extern int burnInSteps;
-    extern float anisotropy[3];
-    extern float anisotropyStrength;
-    extern float anisotropyAxis;
-	extern float anisotropyPlane;
-    extern float magneticField[3];
-    extern float J;
-    extern float lambda;
-    extern float temperature;
+    extern double anisotropy[3];
+    extern double anisotropyStrength;
+    extern double anisotropyAxis;
+	extern double anisotropyPlane;
+    extern double magneticField[3];
+    extern double J;
+    extern double lambda;
+    extern double temperature;
 
     // File constants
     extern std::string positionFile;
     extern std::string outputFile;
     extern std::string energyFile;
-    extern float offset;
-    extern float length;
+    extern double offset;
+    extern double length;
 
     // Prefactors
-    extern float exchangePrefactor;
-    extern float temperatureSigma;
-    extern float anisotropyMatrix[9];
+    extern double exchangePrefactor;
+    extern double temperatureSigma;
+    extern double anisotropyMatrix[9];
 }
 
 void setDerivatives();
+void fancyPrint(std::string text, size_t value);
 // Enables printing for debug purposes
 // bool printPositions = false;
 // bool printNeighbours = false;
