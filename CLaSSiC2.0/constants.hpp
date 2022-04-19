@@ -73,6 +73,9 @@ namespace constants
 
 void setDerivatives();
 void fancyPrint(std::string text, size_t value);
+void fancyPrint(std::string text, int value);
+void fancyPrint(std::string text, double value);
+
 // Enables printing for debug purposes
 // bool printPositions = false;
 // bool printNeighbours = false;
