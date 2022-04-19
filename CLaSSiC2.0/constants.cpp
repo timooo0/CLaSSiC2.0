@@ -94,3 +94,9 @@ void setDerivatives(){
 void fancyPrint(std::string text, size_t value){
 	std::cout << "\033[38;5;159m" <<text << ": "<< "\033[38;5;117m"<< value << "\033[0m\n";
 }
+void fancyPrint(std::string text, int value){
+	std::cout << "\033[38;5;159m" <<text << ": "<< "\033[38;5;117m"<< value << "\033[0m\n";
+}
+void fancyPrint(std::string text, double value){
+	std::cout << "\033[38;5;159m" <<text << ": "<< "\033[38;5;117m"<< value << "\033[0m\n";
+}
