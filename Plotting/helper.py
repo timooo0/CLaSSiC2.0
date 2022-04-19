@@ -39,7 +39,6 @@ def getPath(subPath, i):
 
 def getData():
     param = []
-    x, y, z = [], [], []
     i = 0
     path = getPath(constants["pathData"], i)
     print(path)
@@ -62,10 +61,26 @@ def getData():
             "anisotropyStrength" : data[16]
         }
         param.append(parameters)
-        x.append(np.reshape(data[param[i]["offset"]+0::3], (param[i]["steps"], param[i]["atoms"])).T)
-        y.append(np.reshape(data[param[i]["offset"]+1::3], (param[i]["steps"], param[i]["atoms"])).T)
-        z.append(np.reshape(data[param[i]["offset"]+2::3], (param[i]["steps"], param[i]["atoms"])).T)
+
+        xTemp, yTemp, zTemp = np.zeros((param[i]["steps"], param[i]["atoms"])), np.zeros((param[i]["steps"], param[i]["atoms"])), np.zeros((param[i]["steps"], param[i]["atoms"]))
+        for step in range(param[i]["steps"]):
+            xTemp[step, :] = data[param[i]["offset"]+step*3*param[i]["atoms"]:(step*3+1)*param[i]["atoms"]+param[i]["offset"]]
+            yTemp[step, :] = data[param[i]["offset"]+(step*3+1)*param[i]["atoms"]:(step*3+2)*param[i]["atoms"]+param[i]["offset"]]
+            zTemp[step, :] = data[param[i]["offset"]+(step*3+2)*param[i]["atoms"]:(step*3+3)*param[i]["atoms"]+param[i]["offset"]]
         
+        xTemp = xTemp.T
+        yTemp = yTemp.T
+        zTemp = zTemp.T
+
+        if i==0:
+            x = np.array([xTemp])
+            y = np.array([yTemp])
+            z = np.array([zTemp])
+        else:
+            x = np.vstack((x, np.array([xTemp])))
+            y = np.vstack((y, np.array([yTemp])))
+            z = np.vstack((z, np.array([zTemp])))
+
         # data for the different geometries:
         if parameters["geometry"] == 0:
             parameters["geometry"] = "single"
@@ -101,11 +116,6 @@ def getData():
         path = getPath(constants["pathData"], i)
     if i==0:
         raise FileNotFoundError("Could not open the file!")
-    
-    x = np.stack(x, axis=0)
-    y = np.stack(y, axis=0)
-    z = np.stack(z, axis=0)
-
 
     return param, x, y, z
 
@@ -167,6 +177,20 @@ def getPositions(fileNumber=0):
 def getEnergy(fileNumber=0):
     energy = constants["J_to_meV"]*np.fromfile(getPath(constants["pathEnergy"], fileNumber), dtype=np.double)
     return energy
+
+def fancyPrint(text, value=None, unit=""):
+    if value is None:
+        splitText = [char for char in text]
+        counter = 0
+        for character in splitText:
+            print(f'\033[38;5;{counter}m{character}', end="")
+            if character != " ":
+                counter += 1
+                if counter >= 16:
+                    counter = 0
+        print('\033[0m')
+    else:        
+        print(f'\033[38;5;117m{text}: \033[38;5;159m{value} {unit}\033[0m')
 
 def scatterLine(size):
     print(f'line lattice')
