@@ -219,15 +219,15 @@ void Simulation::initialize()
 	double iterAngle;
 	switch (constants::spinInit)
 	{
-	// case 0:
-	// 	// Alligned with the z-axis
-	// 	for (int i = 0; i < constants::nAtoms; i++)
-	// 	{
-	// 		spin[3 * i] = 0;
-	// 		spin[3 * i + 1] = 0;
-	// 		spin[3 * i + 2] = 1;
-	// 	}
-	// 	break;
+	case 0:
+		// Alligned with the z-axis
+		for (int i = 0; i < constants::nAtoms; i++)
+		{
+			spin.x[i] = 0;
+			spin.y[i] = 0;
+			spin.z[i] = 1;
+		}
+		break;
 	case 1:
 		// Angle with z-axis
 		for (int i = 0; i < constants::nAtoms; i++)
@@ -235,122 +235,122 @@ void Simulation::initialize()
 			// spin.x[i] = std::cos((double)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
 			// spin.y[i] = std::sin((double)i / constants::nAtoms * 2 * constants::pi) * std::sin(constants::angle);
 			spin.x[i] = std::sin(constants::angle);
-			spin.x[i] = std::sin(constants::angle);
+			spin.y[i] = std::sin(constants::angle);
 			spin.z[i] = std::cos(constants::angle);
 		}
 		break;
-	// case 2:
-	// 	// Small z angle for spin waves
-	// 	for (int i = 0; i < (int)constants::nAtoms; i++)
-	// 	{
-	// 			spin[3 * i] = 0.001 * std::cos((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
-	// 			spin[3 * i + 1] = 0.001 * std::sin((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
-	// 			spin[3 * i + 2] = 1;
-	// 		if (constants::J < 0)
-	// 			{
-	// 				spin[3 * i + 3] = 0.001 * std::cos((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
-	// 				spin[3 * i + 4] = -0.001 * std::sin((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
-	// 				spin[3 * i + 5] = -1;
-	// 				i++;
-	// 			}
-	// 	}
-	// 	normalize();
-	// 	break;
-	// case 3:
-	// 	if (constants::J < 0)
-	// 	{
-	// 		swap = -1;
-	// 	}
-	// 	// Rotor mode for two spins
-	// 	spin[0] = std::cos(constants::angle);
-	// 	spin[1] = std::sin(constants::angle);
-	// 	spin[2] = std::cos(constants::angle);
-	// 	spin[3] = -std::cos(constants::angle);
-	// 	spin[4] = -std::sin(constants::angle); 
-	// 	spin[5] = std::cos(constants::angle);
-	// 	break;
-	// case 4:
-	// 	// 2D spin waves
-	// 	for (int i = 0; i < constants::nAtoms; i++)
-	// 	{
-	// 		spin[3 * i] = 0;
-	// 		spin[3 * i + 1] = 0;
-	// 		if ((i + i / constants::nUnitCells) % 2 == 0)
-	// 		{
-	// 			spin[3 * i + 2] = 1;
-	// 		}
-	// 		else
-	// 		{
-	// 			spin[3 * i + 2] = -1;
-	// 		}
-	// 	}
-	// break;
-	// case 5:
-	// 	// Triangle
-	// 	std::cout << constants::spinInit;	
-	// 	std::cout << "Triangle:\n";
-	// 	spin[0] = delta*std::cos(30./180.*constants::pi);
-	// 	spin[1] = delta*std::sin(30./180.*constants::pi);
-	// 	spin[2] = 1;
+	case 2:
+		// Small z angle for spin waves
+		for (int i = 0; i < (int)constants::nAtoms; i++)
+		{
+				spin.x[i] = 0.001 * std::cos((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+				spin.y[i] = 0.001 * std::sin((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+				spin.z[i] = 1;
+			if (constants::J < 0)
+				{
+					spin.x[i + 1] = 0.001 * std::cos((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+					spin.y[i + 1] = -0.001 * std::sin((double)i / constants::nAtoms * constants::mode * 2 * constants::pi);
+					spin.z[i + 1] = -1;
+					i++;
+				}
+		}
+		normalize();
+		break;
+	case 3:
+		if (constants::J < 0)
+		{
+			swap = -1;
+		}
+		// Rotor mode for two spins
+		spin.x[0] = std::cos(constants::angle);
+		spin.y[0] = std::sin(constants::angle);
+		spin.z[0] = std::cos(constants::angle);
+		spin.x[1] = -std::cos(constants::angle);
+		spin.y[1] = -std::sin(constants::angle); 
+		spin.z[1] = std::cos(constants::angle);
+		break;
+	case 4:
+		// 2D spin waves
+		for (int i = 0; i < constants::nAtoms; i++)
+		{
+			spin.x[i] = 0;
+			spin.y[i] = 0;
+			if ((i + i / constants::nUnitCells) % 2 == 0)
+			{
+				spin.z[i] = 1;
+			}
+			else
+			{
+				spin.z[i] = -1;
+			}
+		}
+	break;
+	case 5:
+		// Triangle
+		std::cout << constants::spinInit;	
+		std::cout << "Triangle:\n";
+		spin.x[0] = delta*std::cos(30./180.*constants::pi);
+		spin.y[0] = delta*std::sin(30./180.*constants::pi);
+		spin.z[0] = 1;
 
-	// 	spin[3] = -delta*std::cos(30./180.*constants::pi);
-	// 	spin[4] = delta*std::sin(30./180.*constants::pi);
-	// 	spin[5] = 1;
+		spin.x[1] = -delta*std::cos(30./180.*constants::pi);
+		spin.y[1] = delta*std::sin(30./180.*constants::pi);
+		spin.z[1] = 1;
 		
-	// 	spin[6] = delta*0;
-	// 	spin[7] = -delta*1;
-	// 	spin[8] = -1;
-	// break;
-	// 	case 6:
-	// 	// Kagome antiferromagnetic sqrt(3) x sqrt(3)
-	// 	double offset;
-	// 	for (int i = 0; i < constants::nAtoms; i++){
-	// 		offset = 2./3.*constants::pi*(i/3/constants::nUnitCells%2);
-	// 		iterAngle = 1./2.*constants::pi-2./3.*constants::pi*(i/3)+2./3.*constants::pi*i + offset;
-	// 		spin[3*i] = std::cos(iterAngle);
-	// 		spin[3*i+1] = std::sin(iterAngle);
-	// 		// Pertubation
-	// 		if (std::abs(spin[3*i]) > 1e-6){
-	// 			if (spin[3*i] > 1e-6){
-	// 				spin[3*i] += std::cos(-constants::angle+iterAngle)-std::cos(iterAngle);
-	// 				spin[3*i+1] += std::sin(-constants::angle+iterAngle)-std::sin(iterAngle);
-	// 			}
-	// 			else {
-	// 				spin[3*i] += std::cos(constants::angle+iterAngle)-std::cos(iterAngle);
-	// 				spin[3*i+1] += std::sin(constants::angle+iterAngle)-std::sin(iterAngle);
-	// 			}
-	// 		spin[3*i+2] = 0;
-	// 		}
-	// 	}
-	// break;
-	// 	case 7:
-	// 	// Kagome Q0
-	// 	for (double i = 0; i < constants::nAtoms; i++){
-	// 		iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
-	// 		spin[3*i] = std::cos(iterAngle);
-	// 		spin[3*i+1] = std::sin(iterAngle);
+		spin.x[2] = delta*0;
+		spin.y[2] = -delta*1;
+		spin.z[2] = -1;
+	break;
+		case 6:
+		// Kagome antiferromagnetic sqrt(3) x sqrt(3)
+		double offset;
+		for (int i = 0; i < constants::nAtoms; i++){
+			offset = 2./3.*constants::pi*(i/3/constants::nUnitCells%2);
+			iterAngle = 1./2.*constants::pi-2./3.*constants::pi*(i/3)+2./3.*constants::pi*i + offset;
+			spin.x[i] = std::cos(iterAngle);
+			spin.y[i] = std::sin(iterAngle);
+			// Pertubation
+			if (std::abs(spin.x[i]) > 1e-6){
+				if (spin.x[i] > 1e-6){
+					spin.x[i] += std::cos(-constants::angle+iterAngle)-std::cos(iterAngle);
+					spin.y[i] += std::sin(-constants::angle+iterAngle)-std::sin(iterAngle);
+				}
+				else {
+					spin.x[i] += std::cos(constants::angle+iterAngle)-std::cos(iterAngle);
+					spin.y[i] += std::sin(constants::angle+iterAngle)-std::sin(iterAngle);
+				}
+			spin.z[i] = 0;
+			}
+		}
+	break;
+		case 7:
+		// Kagome Q0
+		for (double i = 0; i < constants::nAtoms; i++){
+			iterAngle = constants::pi*7./6.+2./3.*constants::pi*i;
+			spin.x[i] = std::cos(iterAngle);
+			spin.y[i] = std::sin(iterAngle);
 
-	// 		// Pertubation
-	// 		if (std::abs(spin[3*i]) > 1e-6){
-	// 			if (spin[3*i] > 1e-6){
-	// 				spin[3*i] += std::cos(-constants::angle+iterAngle)-std::cos(iterAngle);
-	// 				spin[3*i+1] += std::sin(-constants::angle+iterAngle)-std::sin(iterAngle);
-	// 			}
-	// 			else {
-	// 				spin[3*i] += std::cos(constants::angle+iterAngle)-std::cos(iterAngle);
-	// 				spin[3*i+1] += std::sin(constants::angle+iterAngle)-std::sin(iterAngle);
-	// 			}
-	// 		}
-	// 		spin[3*i+2] = 0;
-	// 	}
-	// break;
+			// Pertubation
+			if (std::abs(spin.x[i]) > 1e-6){
+				if (spin.x[i] > 1e-6){
+					spin.x[i] += std::cos(-constants::angle+iterAngle)-std::cos(iterAngle);
+					spin.y[i] += std::sin(-constants::angle+iterAngle)-std::sin(iterAngle);
+				}
+				else {
+					spin.x[i] += std::cos(constants::angle+iterAngle)-std::cos(iterAngle);
+					spin.y[i] += std::sin(constants::angle+iterAngle)-std::sin(iterAngle);
+				}
+			}
+			spin.z[i] = 0;
+		}
+	break;
 	}
 	// Printing
 
 	// std::cout << "Spin initialization: \n";
 	// for (int i = 0; i < constants::nAtoms; i++)
 	// {
-	// 	std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin[3 * i] << " y: " << spin[3 * i + 1] << " z: " << spin[3 * i + 2] << std::endl;
+	// 	std::cout << "Atom: " << i / constants::nUnitCells << ", " << i % constants::nUnitCells << "|x: " << spin.x << " y: " << spin.y << " z: " << spin.z << std::endl;
 	// }
 }
 
